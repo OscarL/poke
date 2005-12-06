@@ -30,9 +30,6 @@ check_ports_args(int min_argc, int max_argc, int argc, uint32 argv[])
 ////////////////////////////////////////////////////////////////////////////////
 //	#pragma mark - Ports I/O
 
-// ToDo: change these to behave like the cfin* commands do. ie, accept [count]
-
-/*
 void command_inb(int argc, uint32 argv[])
 {
 	uint32 count = 1, i, cnt = 0;
@@ -44,7 +41,7 @@ void command_inb(int argc, uint32 argv[])
 		count = argv[1];
 
 	while (count > 0) {
-		printf("0x%04X.%02X:", (uint16) argv[0], (uint8) cnt); // argv[1]
+		printf("0x%04X.%02X:", (uint16) argv[0], (uint8) cnt);
 
 		for (i = 0; i < 16; i++) {
 			uint8 tmp = in_port_8(argv[0]++);
@@ -57,8 +54,61 @@ void command_inb(int argc, uint32 argv[])
 		cnt += 16;
 	}
 }
-*/
 
+
+void command_inw(int argc, uint32 argv[])
+{
+	uint32 count = 1, i, cnt = 0;
+
+	if (!check_ports_args(1, 1, argc, argv))
+		return;
+
+	if (argc == 2)
+		count = argv[1];
+
+	while (count > 0) {
+		printf("0x%04X.%02X:", (uint16) argv[0], (uint8) cnt);
+
+		for (i = 0; i < 16; i++) {
+			uint16 tmp = in_port_16(argv[0]++);
+			printf(" %04X", tmp);
+			if (!(--count))
+				break;
+		}
+
+		printf("\n");
+		cnt += 16;
+	}
+}
+
+
+void command_inl(int argc, uint32 argv[])
+{
+	uint32 count = 1, i, cnt = 0;
+
+	if (!check_ports_args(1, 2, argc, argv))
+		return;
+
+	if (argc == 2)
+		count = argv[1];
+
+	while (count > 0) {
+		printf("0x%04X.%02X:", (uint16) argv[0], (uint8) cnt);
+
+		for (i = 0; i < 16; i++) {
+			uint32 tmp = in_port_32(argv[0]++);
+			printf(" %08X", tmp);
+			if (!(--count))
+				break;
+		}
+
+		printf("\n");
+		cnt += 16;
+	}
+}
+
+
+/*
 void command_inb(int argc, uint32 argv[])
 {
 	uint8 tmp;
@@ -69,8 +119,8 @@ void command_inb(int argc, uint32 argv[])
 	tmp = in_port_8(argv[0]);
 	printf("I/O Byte 0x%04lX = 0x%02X\n", argv[0], tmp);
 }
-
-
+*/
+/*
 void command_inw(int argc, uint32 argv[])
 {
 	uint16 tmp;
@@ -81,8 +131,8 @@ void command_inw(int argc, uint32 argv[])
 	tmp = in_port_16(argv[0]);
 	printf("I/O Word 0x%04lX = 0x%04X\n", argv[0], tmp);
 }
-
-
+*/
+/*
 void command_inl(int argc, uint32 argv[])
 {
 	uint32 tmp;
@@ -93,6 +143,7 @@ void command_inl(int argc, uint32 argv[])
 	tmp = in_port_32(argv[0]);
 	printf("I/O Long 0x%04lX = 0x%08lX\n", argv[0], tmp);
 }
+*/
 
 
 //------------------------------------------------------------------------------
