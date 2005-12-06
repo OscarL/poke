@@ -7,8 +7,15 @@
 #ifndef _POKE_IO_BEOS_H_
 #define _POKE_IO_BEOS_H_
 
-#include <SupportDefs.h>
-#include <PCI.h>
+#if defined(__BEOS__)
+	#include <SupportDefs.h>
+	#include <PCI.h>
+#elif defined(__MSDOS__) || defined(__WIN32__)
+	#include "SupportDefs.h"
+	#include "PCI.h"
+#else
+	#error "This is an unsupported platform."
+#endif
 
 
 // Driver access
