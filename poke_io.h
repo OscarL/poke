@@ -25,6 +25,8 @@ void		close_poke_driver(void);
 
 
 // Ports I/O
+uint32	in_port(uint16 port, uint size);
+void	out_port(uint16 port, uint32 value, uint size);
 
 uint8	in_port_8 (uint16 port);
 uint16	in_port_16(uint16 port);
