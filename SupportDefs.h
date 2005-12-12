@@ -59,6 +59,7 @@ enum {
 	B_DEV_ID_ERROR	= -20,
 	B_BAD_VALUE		= -10,
 	B_TIMEOUT		= - 5,
+	B_NO_INIT		= - 3,
 	B_IO_ERROR		= - 2,
 	B_ERROR			= - 1,
 	B_OK			=   0
