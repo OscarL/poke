@@ -68,4 +68,3 @@ enum {
 #endif	// ! __BEOS__
 
 #endif  // _SUPPORTDEFS_H_
-
