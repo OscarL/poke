@@ -4,8 +4,8 @@
 // - Oscar Lesta <oscar@users.berlios.de>.
 //
 
-#ifndef _POKE_IO_BEOS_H_
-#define _POKE_IO_BEOS_H_
+#ifndef _POKE_IO_H_
+#define _POKE_IO_H_
 
 #include "SupportDefs.h"
 #include "PCI.h"
@@ -38,8 +38,8 @@ void	out_port_indexed(uint16 port, uint8 index, uint8 value);
 
 // PCI I/O
 
-uint32		poke_read_pci_config (uint8 bus, uint8 device, uint8 function, uint8 offset, uint8 size);
-void		poke_write_pci_config(uint8 bus, uint8 device, uint8 function, uint8 offset, uint8 size, uint32 value);
+uint32	poke_read_pci_config (uint8 bus, uint8 device, uint8 function, uint8 offset, uint8 size);
+void	poke_write_pci_config(uint8 bus, uint8 device, uint8 function, uint8 offset, uint8 size, uint32 value);
 
 status_t	poke_get_nth_pci_info(int index, pci_info* pciinfo);
 
@@ -50,4 +50,12 @@ area_id	poke_map_physical_mem(uint32 phys_address, uint32* virtual_address, uint
 void	poke_unmap_physical_mem(area_id area);
 
 
-#endif	// _POKE_IO_BEOS_H_
+#ifdef __INTEL__
+
+void	pc_speaker_play(uint16 freq, uint duration);
+void	pc_speaker_on(uint16 freq);
+void	pc_speaker_off(void);
+
+#endif
+
+#endif	// _POKE_IO_H_
