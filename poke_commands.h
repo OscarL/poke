@@ -10,7 +10,7 @@
 #include "SupportDefs.h"
 
 
-#if !defined(__MSDOS__)	// these are not available for D.O.S. yet
+#if !defined(__MSDOS__)	// these are not yet available for plain D.O.S.
 
 // In poke_commands_mem.c
 
