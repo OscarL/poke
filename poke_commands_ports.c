@@ -32,16 +32,27 @@ check_ports_args(int min_argc, int max_argc, int argc, uint32 argv[])
 
 void command_inb(int argc, uint32 argv[])
 {
-	uint32 count = 1, i, cnt = 0;
+	uint32 count;
 
 	if (!check_ports_args(1, 2, argc, argv))
 		return;
 
-	if (argc == 2)
-		count = argv[1];
+	if (argc == 1) {
+		uint8 tmp = in_port_8(argv[0]);
+		printf("I/O Byte 0x%04lX = 0x%02X\n", argv[0], tmp);
+		return;
+	}
+
+	if ((argc == 2) && (argv[1] < argv[0])) {
+		printf("'last_port' must be greater than the first one\n");
+		return;
+	}
+
+	count = argv[1] - argv[0] + 1;
 
 	while (count > 0) {
-		printf("0x%04X.%02X:", (uint16) argv[0], (uint8) cnt);
+		uint i;
+		printf("0x%04X:", (uint16) argv[0]);
 
 		for (i = 0; i < 16; i++) {
 			uint8 tmp = in_port_8(argv[0]++);
@@ -51,76 +62,10 @@ void command_inb(int argc, uint32 argv[])
 		}
 
 		printf("\n");
-		cnt += 16;
 	}
 }
 
 
-void command_inw(int argc, uint32 argv[])
-{
-	uint32 count = 1, i, cnt = 0;
-
-	if (!check_ports_args(1, 1, argc, argv))
-		return;
-
-	if (argc == 2)
-		count = argv[1];
-
-	while (count > 0) {
-		printf("0x%04X.%02X:", (uint16) argv[0], (uint8) cnt);
-
-		for (i = 0; i < 16; i++) {
-			uint16 tmp = in_port_16(argv[0]++);
-			printf(" %04X", tmp);
-			if (!(--count))
-				break;
-		}
-
-		printf("\n");
-		cnt += 16;
-	}
-}
-
-
-void command_inl(int argc, uint32 argv[])
-{
-	uint32 count = 1, i, cnt = 0;
-
-	if (!check_ports_args(1, 2, argc, argv))
-		return;
-
-	if (argc == 2)
-		count = argv[1];
-
-	while (count > 0) {
-		printf("0x%04X.%02X:", (uint16) argv[0], (uint8) cnt);
-
-		for (i = 0; i < 16; i++) {
-			uint32 tmp = in_port_32(argv[0]++);
-			printf(" %08X", tmp);
-			if (!(--count))
-				break;
-		}
-
-		printf("\n");
-		cnt += 16;
-	}
-}
-
-
-/*
-void command_inb(int argc, uint32 argv[])
-{
-	uint8 tmp;
-
-	if (!check_ports_args(1, 1, argc, argv))
-		return;
-
-	tmp = in_port_8(argv[0]);
-	printf("I/O Byte 0x%04lX = 0x%02X\n", argv[0], tmp);
-}
-*/
-/*
 void command_inw(int argc, uint32 argv[])
 {
 	uint16 tmp;
@@ -131,8 +76,8 @@ void command_inw(int argc, uint32 argv[])
 	tmp = in_port_16(argv[0]);
 	printf("I/O Word 0x%04lX = 0x%04X\n", argv[0], tmp);
 }
-*/
-/*
+
+
 void command_inl(int argc, uint32 argv[])
 {
 	uint32 tmp;
@@ -143,7 +88,6 @@ void command_inl(int argc, uint32 argv[])
 	tmp = in_port_32(argv[0]);
 	printf("I/O Long 0x%04lX = 0x%08lX\n", argv[0], tmp);
 }
-*/
 
 
 //------------------------------------------------------------------------------
@@ -211,6 +155,7 @@ void command_idxinb(int argc, uint32 argv[])
 
 
 // argv[0] = port, argv[1] = register index, argv[2] = value to write
+
 void command_idxoutb(int argc, uint32 argv[])
 {
 	if (!check_ports_args(3, 3, argc, argv))

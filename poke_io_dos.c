@@ -29,6 +29,12 @@ void close_poke_driver(void)
 ////////////////////////////////////////////////////////////////////////////////
 // Ports I/O
 
+// See "4.32 Assembler Instructions with C Expression Operands" on GCC docs for
+// help with "built-in" asm.
+//
+// Basically: ("<instruction> [params]" : [output] : [input] [,] [more_in])
+//
+
 uint8 in_port_8(uint16 port)
 {
 	uint8 value;
@@ -77,7 +83,7 @@ void out_port_32(uint16 port, uint32 value)
 uint8 in_port_indexed(uint16 port, uint8 index)
 {
 	out_port_8(port, index);
-	return in_port_8(port + 1, index);
+	return in_port_8(port + 1);
 }
 
 
@@ -177,7 +183,7 @@ poke_get_nth_pci_info(int index, pci_info* pciinfo)
 area_id
 poke_map_physical_mem(uint32 phys_address, uint32* virtual_address, uint32* offset)
 {
-	return 0;
+	return B_ERROR;
 }
 
 
