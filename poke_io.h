@@ -18,8 +18,8 @@ void		close_poke_driver(void);
 
 
 // Ports I/O
-uint32	in_port(uint16 port, uint size);
-void	out_port(uint16 port, uint32 value, uint size);
+uint32	in_port(uint16 port, uint8 size);
+void	out_port(uint16 port, uint32 value, uint8 size);
 
 uint8	in_port_8 (uint16 port);
 uint16	in_port_16(uint16 port);
@@ -45,6 +45,15 @@ status_t	poke_get_nth_pci_info(int index, pci_info* pciinfo);
 
 
 // Memory access
+
+enum {
+	MEM_UNAVAILABLE	= -3,	// can't access the memory (not implemented?)
+	MEM_NOT_MAPPED	= -2,
+	MEM_PROTECTED	= -1,
+	MEM_OK			=  0	// ready to be peeked/poked
+};
+
+int		memory_state_of(uint32 memAddress);
 
 area_id	poke_map_physical_mem(uint32 phys_address, uint32* virtual_address, uint32* offset);
 void	poke_unmap_physical_mem(area_id area);
