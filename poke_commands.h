@@ -10,8 +10,6 @@
 #include "SupportDefs.h"
 
 
-#if !defined(__MSDOS__)	// these are not yet available for plain D.O.S.
-
 // In poke_commands_mem.c
 
 void command_db(int argc, uint32 argv[]);
@@ -32,8 +30,6 @@ void command_spl(int argc, uint32 argv[]);
 
 void command_dumpvm(int argc, uint32 argv[]);
 void command_dumppm(int argc, uint32 argv[]);
-
-#endif	// !defined(__MSDOS__)
 
 
 // In poke_commands_ports.c
