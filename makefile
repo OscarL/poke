@@ -15,7 +15,7 @@ SRCS = \
 	 pc_speaker.c
 
 RSRCS = \
-	 Poke.rsrc
+	 poke.rsrc
 
 # @<-src@
 #%}
