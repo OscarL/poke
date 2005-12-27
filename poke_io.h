@@ -22,6 +22,7 @@ void		close_poke_driver(void);
 
 
 // Ports I/O
+
 uint32	in_port(uint16 port, uint8 size);
 void	out_port(uint16 port, uint32 value, uint8 size);
 
@@ -62,6 +63,8 @@ int		memory_state_of(uint32 memAddress);
 area_id	poke_map_physical_mem(uint32 phys_address, uint32* virtual_address, uint32* offset);
 void	poke_unmap_physical_mem(area_id area);
 
+
+// Misc
 
 #ifdef __INTEL__
 void	pc_speaker_beep(uint16 freq, uint duration);
