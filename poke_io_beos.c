@@ -142,7 +142,7 @@ void out_port_indexed(uint16 port, uint8 index, uint8 value)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-//	#pragma mark - PCI
+//	#pragma mark - PCI access
 
 uint32
 poke_read_pci_config(uint8 bus, uint8 device, uint8 function, uint8 offset,
@@ -209,7 +209,7 @@ poke_get_nth_pci_info(int index, pci_info* pciinfo)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-//	#pragma mark - MemMap
+//	#pragma mark - Memory Access
 
 int memory_state_of(uint32 memAddress)
 {
@@ -218,7 +218,7 @@ int memory_state_of(uint32 memAddress)
 
 	area = area_for((void*) memAddress);
 	if (area < 0)
-		return MEM_NOT_MAPPED;	// address not in local address space.
+		return MEM_NOT_MAPPED;	// memAddress not in local address space.
 
 	// are B_READ_AREA or B_WRITE_AREA set?
 	if (get_area_info(area, &info) != B_OK || (!info.protection))
