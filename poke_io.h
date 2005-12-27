@@ -7,9 +7,13 @@
 #ifndef _POKE_IO_H_
 #define _POKE_IO_H_
 
-#include "SupportDefs.h"
-#include "PCI.h"
-
+#if defined(__BEOS__)
+	#include <SupportDefs.h>
+	#include <PCI.h>
+#else
+	#include "SupportDefs.h"
+	#include "PCI.h"
+#endif
 
 // Driver access
 

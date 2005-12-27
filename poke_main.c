@@ -20,8 +20,6 @@
 #include "poke_commands.h"
 #include "poke_io.h"
 
-#include "SupportDefs.h"
-
 #if defined(__BEOS__)
 	#include <FindDirectory.h>
 #endif
@@ -222,8 +220,8 @@ int main(int argc, char* argv[])
 		s = trimstring(line);
 		if (*s) {
 			// only add valid, not repeated, commands to the history.
-			if (history_search_pos(line_copy, 0, 0) == -1)
-				add_history(line_copy);
+			if (history_search_pos(s, 0, 0) == -1)
+				add_history(s);
 			process_line(s);
 		}
 		free(line);

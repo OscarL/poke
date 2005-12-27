@@ -7,8 +7,11 @@
 #ifndef _POKE_COMMANDS_H_
 #define _POKE_COMMANDS_H_
 
-#include "SupportDefs.h"
-
+#if defined(__BEOS__)
+	#include <SupportDefs.h>
+#else
+	#include "SupportDefs.h"
+#endif
 
 // In poke_commands_mem.c
 

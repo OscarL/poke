@@ -4,9 +4,9 @@
 // - Oscar Lesta <oscar@users.berlios.de>.
 //
 
-#include <stdio.h>
-
 #include "poke_io.h"
+
+#include <stdio.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 //	#pragma mark - PCI Info

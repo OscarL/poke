@@ -5,11 +5,7 @@
 //
 
 #include "poke_io.h"
-
-#include "SupportDefs.h"
-#include "PCI.h"
 #include "pci_info.h"
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // (fake) Driver access
