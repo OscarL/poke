@@ -51,7 +51,7 @@ status_t	poke_get_nth_pci_info(int index, pci_info* pciinfo);
 // Memory access
 
 enum {
-	MEM_UNAVAILABLE	= -3,	// can't access the memory (not implemented?)
+	MEM_UNAVAILABLE	= -3,	// generic error (like when not implemented)
 	MEM_NOT_MAPPED	= -2,
 	MEM_PROTECTED	= -1,
 	MEM_OK			=  0	// ready to be peeked/poked
@@ -64,11 +64,7 @@ void	poke_unmap_physical_mem(area_id area);
 
 
 #ifdef __INTEL__
-
-void	pc_speaker_play(uint16 freq, uint duration);
-void	pc_speaker_on(uint16 freq);
-void	pc_speaker_off(void);
-
+void	pc_speaker_beep(uint16 freq, uint duration);
 #endif
 
 #endif	// _POKE_IO_H_
