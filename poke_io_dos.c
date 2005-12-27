@@ -180,6 +180,12 @@ poke_get_nth_pci_info(int index, pci_info* pciinfo)
 ////////////////////////////////////////////////////////////////////////////////
 // Memory access. Empty stubs, because mem commands aren't supported yet in DOS
 
+int memory_state_of(uint32 memAddress)
+{
+	return MEM_UNAVAILABLE;
+}
+
+
 area_id
 poke_map_physical_mem(uint32 phys_address, uint32* virtual_address, uint32* offset)
 {

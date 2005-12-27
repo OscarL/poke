@@ -4,6 +4,7 @@
 // - Oscar Lesta <oscar@users.berlios.de>.
 //
 
+#include "poke_io.h"
 #include "poke.h"			// "private/drivers/poke.h"
 
 #include <unistd.h>
@@ -209,6 +210,23 @@ poke_get_nth_pci_info(int index, pci_info* pciinfo)
 
 ////////////////////////////////////////////////////////////////////////////////
 //	#pragma mark - MemMap
+
+int memory_state_of(uint32 memAddress)
+{
+	area_id area = -1;
+	area_info info;
+
+	area = area_for((void*) memAddress);
+	if (area < 0)
+		return MEM_NOT_MAPPED;	// address not in local address space.
+
+	// are B_READ_AREA or B_WRITE_AREA set?
+	if (get_area_info(area, &info) != B_OK || (!info.protection))
+		return MEM_PROTECTED;
+
+	return MEM_OK;
+}
+
 
 area_id
 poke_map_physical_mem(uint32 phys_address, uint32* virtual_address, uint32* off)
