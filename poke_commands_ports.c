@@ -57,7 +57,7 @@ void command_inb(int argc, uint32 argv[])
 		for (i = 0; i < 16; i++) {
 			uint8 tmp = in_port_8(argv[0]++);
 			printf(" %02X", tmp);
-			if (!(--count))
+			if (--count == 0)
 				break;
 		}
 
@@ -145,7 +145,7 @@ void command_idxinb(int argc, uint32 argv[])
 		for (i = 0; i < 16; i++) {
 			uint8 tmp = in_port_indexed(argv[0], argv[1]++);
 			printf(" %02X", tmp);
-			if (!(--index_count))
+			if (--index_count == 0)
 				break;
 		}
 
