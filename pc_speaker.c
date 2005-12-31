@@ -34,7 +34,7 @@ void pc_speaker_off(void)
 }
 
 
-void pc_speaker_play(uint16 freq, uint duration)
+void pc_speaker_beep(uint16 freq, uint duration)
 {
 	pc_speaker_on(freq);
 	snooze(duration);
