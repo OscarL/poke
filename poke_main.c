@@ -1,21 +1,8 @@
-/*
-   A "poke" replacement. Any resemblance, and difference, with the original is
-   absolutely intentional.
-
-   Thanks to:
-   - Eric Huss for his "The C Library Reference Guide".
-   - Snippets.org
-   - readline's "fileman" sample program.
-   - Rudolf Cornelissen for the testing and suggestions.
-
-   ToDo(s):
-   - Apply a real coding style... ie clean up this mess.
-   - Better scripting than "cat commands.txt | poke > output.txt" ?
-   - Better command completion (complete arguments from history, for example).
-   - New commands to force reads/writes to protected areas?
-   - Only one command for virtual/physical addresses?
-   - Fix the Broken English in the comments.
-*/
+//
+// Copyright 2005, Haiku Inc. Distributed under the terms of the MIT license.
+// Author(s):
+// - Oscar Lesta <oscar@users.berlios.de>.
+//
 
 #include "poke_commands.h"
 #include "poke_io.h"
@@ -33,12 +20,12 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void command_quit(int argc, uint32 argv[]);
-void command_help(int argc, uint32 argv[]);
-void command_clear(int argc, uint32 argv[]);
 void command_about(int argc, uint32 argv[]);
-void command_play(int argc, uint32 argv[]);
+void command_beep(int argc, uint32 argv[]);
+void command_clear(int argc, uint32 argv[]);
+void command_help(int argc, uint32 argv[]);
 void command_nummode(int argc, uint32 argv[]);
+void command_quit(int argc, uint32 argv[]);
 
 status_t process_line(char line[]);
 int   	index_for_command(const char name[]);
@@ -46,14 +33,13 @@ char*	trimstring(char str[]);
 
 
 #ifndef DONT_USE_LINE_EDITING
-	#if defined(USE_GNU_READLINE)
-		#include "readline/readline.h"
-		#include "readline/history.h"
-	#elif	defined(USE_BSD_EDITLINE)
-	//	#include "editline/readline.h"
-		#include "readline.h"
+	#if defined(USE_ECL)
+		#include "EditableCmdLine.h"
 	#else
-		#include "CmdLineEdit.h"	// my own code... not ready yet.
+		#include "readline.h"
+		#if defined(USE_READLINE)
+			#include "history.h"
+		#endif
 	#endif
 
 	// Interface to lib{edit|read}line.so completion
@@ -63,8 +49,6 @@ char*	trimstring(char str[]);
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// A structure which contains information on the commands this program can
-// understand.
 
 typedef struct {
 	const char*	name;
@@ -113,29 +97,27 @@ command commands[] = {
 	{ "pci",		command_pci,		"[bus dev fun]",			"Display PCI device info" },
 	{ "pcilist",	command_pcilist,	"",							"List PCI devices" },
 
-	{ "cfinb",		command_cfinb,		"bus dev fun off [count]",	"Read a (or count) PCI config byte(s) starting at offset" },
+	{ "cfinb",		command_cfinb,		"bus dev fun off [count]",	"Read PCI config byte(s) starting at offset" },
 	{ "cfoutb",		command_cfoutb,		"bus dev fun off val",		"Write a PCI config byte" },
-	{ "cfinw",		command_cfinw,		"bus dev fun off [count]",	"Read a (or count) PCI config word(s)" },
+	{ "cfinw",		command_cfinw,		"bus dev fun off [count]",	"Read PCI config word(s)" },
 	{ "cfoutw",		command_cfoutw,		"bus dev fun off val",		"Write a PCI config word" },
-	{ "cfinl",		command_cfinl,		"bus dev fun off [count]",	"Read a (or count) PCI config long(s)" },
+	{ "cfinl",		command_cfinl,		"bus dev fun off [count]",	"Read PCI config long(s)" },
 	{ "cfoutl",		command_cfoutl,		"bus dev fun off val",		"Write a PCI config long" },
 
 #ifdef DONT_USE_LINE_EDITING
 	{ "r",			command_repeat,		"",							"Repeat last command" },
 #endif
 
+	{ "?",			command_help,		"[command]",				"Show help (for [command])" },
+	{ "help",		command_help,		"[command]",				"Show help (for [command])" },
+	{ "num",		command_nummode,	"",							"Toggle numeric args mode (Hex/Dec)" },
 	{ "clear",		command_clear,		"",							"Clear the console" },
+#ifdef __INTEL__
+	{ "beep",		command_beep,		"[freq] [duration_ms]",		"beep beep!" },
+#endif
 	{ "quit",		command_quit,		"",							"Quit poking around" },
 	{ "exit",		command_quit,		"",							"Quit poking around" },
-	{ "help",		command_help,		"[command]",				"Show help (for [command])" },
-	{ "?",			command_help,		"[command]",				"Show help (for [command])" },
 	{ "about",		command_about,		"",							"About this program" },
-
-#ifdef __INTEL__
-	{ "play",		command_play,		"[freq] [duration]",		"Make some noise!" },
-#endif
-
-	{ "num",		command_nummode,	"",							"Expect num args in {Hex|Dec}" }
 
 //	{ NULL,			NULL,				NULL,						NULL }
 };
@@ -167,26 +149,78 @@ static int gNumMode = kDecMode;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef DONT_USE_LINE_EDITING
+#ifdef DONT_USE_LINE_EDITING
 
 int main(int argc, char* argv[])
 {
-	char history_file[B_FILE_NAME_LENGTH];
-	int32 dummy = 0;
-	char* line;
+	char line[255];
 	char* s;
 
-	status_t status;
-
-	// review this, at start I got "poke: poke: something" when I hit cursor up.
-	if (!isatty(STDIN_FILENO)) {
+#if defined(__BEOS__)
+	// If not a tty spawn a Terminal window, unless we're called
+	// with arguments (like "poke -"), read from stdin in that case.
+	if (!isatty(STDIN_FILENO) && (argc == 1)) {
 		char command[256 + 10];
 		sprintf(command, "Terminal %s", argv[0]);
 		system(command);
 		return B_OK;
 	}
+#endif
 
-//	fflush(STDIN_FILENO);
+	status_t status = open_poke_driver();
+	if (status < B_OK) {
+		printf("Couldn't open the poke driver, reason: %s\n", strerror(status));
+		return B_ERROR;
+	}
+
+#if defined(__BEOS__)
+	system("sync");		// Better safe than sorry.
+#endif
+
+	printf(INTRO_STRING);
+	printf("(num args expected to be %s)\n\n",
+			(gNumMode == kDecMode) ? "Decimal" : "Hexadecimal");
+
+	while (done == 0) {
+		fflush(stdout);
+		printf("poke: ");
+		fflush(stdout);
+
+		if (fgets(line, 255, stdin) == NULL)
+			continue;
+
+		s = trimstring(line);
+		if (*s)
+			process_line(s);
+	}
+
+	close_poke_driver();
+
+	return B_OK;
+}
+
+#else	// DONT_USE_LINE_EDITING
+
+int main(int argc, char* argv[])
+{
+	char history_file[B_FILE_NAME_LENGTH];
+	status_t status;
+	int32 dummy = 0;
+	char* line;
+	char* s;
+
+#if defined(__BEOS__)
+	// If not a tty spawn a Terminal window, unless we're called
+	// with arguments (like "poke -"), read from stdin in that case.
+
+	// review this, at start I get "poke: poke: something" when I hit cursor up.
+	if (!isatty(STDIN_FILENO) && (argc == 1)) {
+		char command[256 + 10];
+		sprintf(command, "Terminal %s", argv[0]);
+		system(command);
+		return B_OK;
+	}
+#endif
 
 	status = open_poke_driver();
 	if (status < B_OK) {
@@ -194,23 +228,25 @@ int main(int argc, char* argv[])
 		return B_ERROR;
 	}
 
+#if defined(__BEOS__)
+	system("sync");		// Better safe than sorry.
+#endif
+
 	printf(INTRO_STRING);
 	printf("(Numeric arguments will be interpreted as %s)\n\n",
 			(gNumMode == kDecMode) ? "Decimal" : "Hexadecimal");
 
+#if defined(__BEOS__)
 	if (find_directory(B_USER_SETTINGS_DIRECTORY, 0, false, history_file,
 		dummy) == B_OK) {
 		strcat(history_file, "/poke_history");
 	}
+#endif
 
 	rl_readline_name = "poke";	// allow custom keybindings in ~/.inputrc
 	rl_attempted_completion_function = command_completion;
 
 	read_history(history_file);
-
-#if defined(__BEOS__)
-	system("sync");		// Better safe than sorry.
-#endif
 
 	while (done == 0) {
 		line = readline("poke: ");
@@ -219,9 +255,7 @@ int main(int argc, char* argv[])
 
 		s = trimstring(line);
 		if (*s) {
-			// only add valid, not repeated, commands to the history.
-			if (history_search_pos(s, 0, 0) == -1)
-				add_history(s);
+			add_history(s);
 			process_line(s);
 		}
 		free(line);
@@ -234,21 +268,23 @@ int main(int argc, char* argv[])
 	return B_OK;
 }
 
+
 char** command_completion(const char text[], int start, int end)
 {
 	char** matches = NULL;
 
 	// If using libreadline, don't default to complete-filenames.
-//	rl_attempted_completion_over = 1;
+	rl_attempted_completion_over = 1;
 
 	// If this word is at the start of the line, then it is a command to
 	// complete.
-	if (start == 0 || start <= 5)
-#if	0	// GNU readline
-		matches = rl_completion_matches(text, command_generator);
-#else
-		matches = completion_matches(text, command_generator);
-#endif
+	if (start == 0 || start <= 5) {
+		#ifdef USE_EDITLINE
+			matches = completion_matches(text, command_generator);
+		#else
+			matches = rl_completion_matches(text, command_generator);
+		#endif
+	}
 	return matches;
 }
 
@@ -272,48 +308,6 @@ char* command_generator(const char text[], int state)
     }
 
 	return NULL;
-}
-
-
-#else	// DONT_USE_LINE_EDITING
-
-//	#pragma mark - Without Readline
-
-// no editline available/wanted.
-int main(int argc, char* argv[])
-{
-	char line[70];
-	char* s;
-
-	status_t status = open_poke_driver();
-	if (status < B_OK) {
-		printf("Couldn't open the poke driver, reason: %s\n", strerror(status));
-		return B_ERROR;
-	}
-
-	printf(INTRO_STRING);
-	printf("(num args expected to be %s)\n\n",
-			(gNumMode == kDecMode) ? "Decimal" : "Hexadecimal");
-
-#if defined(__BEOS__)
-	system("sync");		// Better safe than sorry.
-#endif
-
-	while (done == 0) {
-		fflush(stdout);
-		printf("poke: ");
-		fflush(stdout);
-
-		if (fgets(line, 70, stdin) == NULL)
-			continue;
-
-		s = trimstring(line);
-		if (*s) process_line(s);
-	}
-
-	close_poke_driver();
-
-	return B_OK;
 }
 
 #endif	// DONT_USE_LINE_EDITING
@@ -363,7 +357,8 @@ status_t process_line(char line[])
 			}
 		}
 	}
-	else {
+	else
+	{
 		argument = strtok(NULL, " ");
 		if (argument != NULL) {
 			argv[0] = index_for_command(argument);
@@ -397,7 +392,7 @@ char* trimstring(char str[])
 	while (isspace(*start))					// skip leading whites...
 		start++;
 
-	if (*start == '\0')						// are we at string's end?
+	if (*start == '\0')						// are we at string's end yet?
 		return start;
 
 	end = start + strlen(start) - 1;
@@ -428,16 +423,15 @@ void command_help(int argc, uint32 argv[])
 		return;
 	}
 
-	// "help bla"
+	// "help command"
 	if (argc == 1 && ((signed) argv[0]) > B_ERROR) {
 		printf("%-10s%-28s%s.\n", commands[argv[0]].name,
 				commands[argv[0]].args, commands[argv[0]].help);
 		return;
 	}
 
-	printed = 0;
 	printf("No such command. Possible ones are:\n");
-
+	printed = 0;
 	for (i = 0; i < kCommandsCount; i++) {
 		if (printed == 8) {
 			printed = 0;
@@ -469,17 +463,6 @@ void command_clear(int argc, uint32 argv[])
 }
 
 
-void command_about(int argc, uint32 argv[])
-{
-	if (argc)
-		printf("About whom?\n");
-	else {
-		printf("Copyright 2005, Haiku Inc.\n");
-		printf("This program was brought to you by Oscar Lesta\nBig Deal!\n");
-	}
-}
-
-
 void command_nummode(int argc, uint32 argv[])
 {
 	// toogle the mode and report.
@@ -493,12 +476,12 @@ void command_nummode(int argc, uint32 argv[])
 
 #ifdef __INTEL__
 
-void command_play(int argc, uint32 argv[])
+void command_beep(int argc, uint32 argv[])
 {
 	switch (argc) {
-		case 0:	pc_speaker_play(1000, 250000);				break;
-		case 1:	pc_speaker_play(argv[0], 250000);    		break;
-        case 2: pc_speaker_play(argv[0], argv[1] * 1000);	break;
+		case 0:	pc_speaker_beep(1000, 250000);				break;
+		case 1:	pc_speaker_beep(argv[0], 250000);    		break;
+        case 2: pc_speaker_beep(argv[0], argv[1] * 1000);	break;
 		default:
 			printf("Wrong number of arguments\n");
 		break;
@@ -506,3 +489,14 @@ void command_play(int argc, uint32 argv[])
 }
 
 #endif
+
+
+void command_about(int argc, uint32 argv[])
+{
+	if (argc)
+		printf("About whom?\n");
+	else {
+		printf("Copyright 2005, Haiku Inc.\n");
+		printf("This program was brought to you by Oscar Lesta\nBig Deal!\n");
+	}
+}
