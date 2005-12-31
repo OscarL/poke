@@ -15,6 +15,11 @@
 	#include "PCI.h"
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 // Driver access
 
 status_t	open_poke_driver(void);
@@ -68,6 +73,12 @@ void	poke_unmap_physical_mem(area_id area);
 
 #ifdef __INTEL__
 void	pc_speaker_beep(uint16 freq, uint duration);
+#define	BEEP()	pc_speaker_beep(1000, 125000)
+#endif
+
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif	// _POKE_IO_H_
