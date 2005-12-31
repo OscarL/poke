@@ -146,7 +146,7 @@ static void pci_config_in(int size, int argc, uint32 argv[])
 		for (i = 0; i < (16 / size); i++) {
 			printf(tmp, poke_read_pci_config(argv[0], argv[1], argv[2], argv[3], size));
 			argv[3] += size;
-			if (!(--count))
+			if (--count == 0)
 				break;
 		}
 
