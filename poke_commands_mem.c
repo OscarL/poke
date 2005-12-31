@@ -35,6 +35,10 @@ mem_args_ok(int min_argc, int max_argc, bool phys_cmd, int argc, uint32 address)
 	}
 
 	mem_state = memory_state_of(address);
+	if (mem_state == MEM_UNAVAILABLE) {
+		printf("Memory functions not available on this platform.\n");
+		return false;
+	}
 
 	if (phys_cmd && (mem_state != MEM_NOT_MAPPED)) {
 		printf("address 0x%08lX is already mapped, use the 'virtual'"
@@ -189,7 +193,7 @@ void read_physical_mem(int size, int argc, uint32 argv[])
 		return;
 
 	area = poke_map_physical_mem(argv[0], &address, &offset);
-	if (area < 0) {
+	if (area < B_OK) {
 		printf("Error while trying to map physical memory\n");
 		return;
 	}
@@ -205,7 +209,11 @@ void read_physical_mem(int size, int argc, uint32 argv[])
 		case 4:	printf("0x%08lX = 0x%08lX\n", argv[0], MEM32(address));	break;
 	}
 
+#if defined(__WIN32__)
+	poke_unmap_physical_mem(address);	// Win* implementation is a bit hackish.
+#else
 	poke_unmap_physical_mem(area);
+#endif
 }
 
 
@@ -239,7 +247,7 @@ void command_dpm(int argc, uint32 argv[])
 		argv[1] = 16;
 
 	area = poke_map_physical_mem(argv[0], &address, &offset);
-	if (area < 0) {
+	if (area < B_OK) {
 		printf("Error while trying to map physical memory\n");
 		return;
 	}
@@ -264,6 +272,7 @@ void command_dpm(int argc, uint32 argv[])
 
 		for (i = 0; i < 16; i++) {
 			uint8 tmp = MEM8(address + i);
+			// Printable ASCII or dot.
 			printf("%c", (tmp > 32) && (tmp < 127) ? tmp : '.');
 		}
 
@@ -273,7 +282,11 @@ void command_dpm(int argc, uint32 argv[])
 		argv[1] -= 16;
 	}
 
+#if defined(__WIN32__)
+	poke_unmap_physical_mem(address);
+#else
 	poke_unmap_physical_mem(area);
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -288,7 +301,7 @@ void write_physical_mem(int size, int argc, uint32 argv[])
 		return;
 
 	area = poke_map_physical_mem(argv[0], &address, &offset);
-	if (area < 0) {
+	if (area < B_OK) {
 		printf("Error while trying to map physical memory\n");
 		return;
 	}
@@ -313,7 +326,11 @@ void write_physical_mem(int size, int argc, uint32 argv[])
 		break;
 	}
 
+#if defined(__WIN32__)
+	poke_unmap_physical_mem(address);
+#else
 	poke_unmap_physical_mem(area);
+#endif
 }
 
 
@@ -349,23 +366,15 @@ void command_dumpvm(int argc, uint32 argv[])
 	if (!mem_args_ok(3, 3, false, argc, argv[0]))
 		return;
 
-#if defined(__MSDOS__)
-
-	sprintf(filename, "C:\\poke_vm_dump.%02d", (int) argv[2]);
-
-#elif defined(__BEOS__)
-
+#if defined(__BEOS__)
 	if (find_directory(B_USER_DIRECTORY, 0, false, filename, dummy) == B_OK) {
 		strcat(filename, "/poke_vm_dump.%02d");
 		sprintf(filename, filename, argv[2]);
 	}
-	else sprintf(filename, "poke_vm_dump.%02d", (int) argv[2]);
-
-#else
+	else
+#endif
 
 	sprintf(filename, "poke_vm_dump.%02d", (int) argv[2]);
-
-#endif
 
 	fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
 	if (fd < 0) {
@@ -402,21 +411,15 @@ void command_dumppm(int argc, uint32 argv[])
 	if (!mem_args_ok(3, 3, true, argc, argv[0]))
 		return;
 
-#if defined(__MSDOS__) || defined(__WIN32__)
-
-	sprintf(filename, "C:\\poke_pm_dump.%02d", (int) argv[2]);
-
-#elif defined(__BEOS__)
-
+#if defined(__BEOS__)
 	if (find_directory(B_USER_DIRECTORY, 0, false, filename, dummy) == B_OK) {
 		strcat(filename, "/poke_pm_dump.%02d");
 		sprintf(filename, filename, argv[2]);
 	}
-	else sprintf(filename, "poke_pm_dump.%02d", (int) argv[2]);
-
-#else
-	sprintf(filename, "poke_pm_dump.%02dL", argv[2]);
+	else
 #endif
+
+	sprintf(filename, "poke_pm_dump.%02d", (int) argv[2]);
 
 	fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
 	if (fd < 0) {
@@ -430,7 +433,7 @@ void command_dumppm(int argc, uint32 argv[])
 		uint8 tmp[B_PAGE_SIZE];
 
 		area = poke_map_physical_mem(argv[0] + (i * B_PAGE_SIZE), &address, &dummy);
-		if (area < 0) {
+		if (area < B_OK) {
 			printf("Error while trying to map physical memory (page = %d)\n", i);
 			break;
 		}
@@ -442,10 +445,10 @@ void command_dumppm(int argc, uint32 argv[])
 		write(fd, tmp, B_PAGE_SIZE);
 		address += B_PAGE_SIZE;
 
-#if defined(__BEOS__)
-		poke_unmap_physical_mem(area);
-#else
+#if defined(__WIN32__)
 		poke_unmap_physical_mem(address);
+#else
+		poke_unmap_physical_mem(area);
 #endif
 	}
 
