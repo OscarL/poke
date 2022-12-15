@@ -1,0 +1,4 @@
+help
+beep
+about
+quit

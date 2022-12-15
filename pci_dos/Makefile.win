@@ -1,0 +1,57 @@
+# Project: Poke for Windows
+# Makefile created by Dev-C++ 4.9.9.2
+
+CPP  = g++.exe
+CC   = gcc.exe
+WINDRES = windres.exe
+RES  = objs/Poke.res
+OBJ  = objs/pci_config.o objs/poke.o objs/poke_commands_mem.o objs/poke_commands_pci.o objs/poke_commands_ports.o objs/pci_info.o objs/poke_io_win.o objs/DScalerDriver.o objs/pc_speaker.o $(RES)
+LINKOBJ  = objs/pci_config.o objs/poke.o objs/poke_commands_mem.o objs/poke_commands_pci.o objs/poke_commands_ports.o objs/pci_info.o objs/poke_io_win.o objs/DScalerDriver.o objs/pc_speaker.o $(RES)
+LIBS =  -L"C:/DEV-CPP/lib" -lreadline  -s 
+INCS =  -I"C:/DEV-CPP/include" 
+CXXINCS =  -I"C:/DEV-CPP/lib/gcc/mingw32/3.4.2/include"  -I"C:/DEV-CPP/include/c++/3.4.2/backward"  -I"C:/DEV-CPP/include/c++/3.4.2/mingw32"  -I"C:/DEV-CPP/include/c++/3.4.2"  -I"C:/DEV-CPP/include" 
+BIN  = Poke.exe
+CXXFLAGS = $(CXXINCS) -DNDEBUG -fno-rtti -fno-exceptions -Os  
+CFLAGS = $(INCS) -DNDEBUG -Os  
+RM = rm -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before Poke.exe all-after
+
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(OBJ)
+	$(CPP) $(LINKOBJ) -o "Poke.exe" $(LIBS)
+
+objs/pci_config.o: pci_config.c
+	$(CPP) -c pci_config.c -o objs/pci_config.o $(CXXFLAGS)
+
+objs/poke.o: poke.c
+	$(CPP) -c poke.c -o objs/poke.o $(CXXFLAGS)
+
+objs/poke_commands_mem.o: poke_commands_mem.c
+	$(CPP) -c poke_commands_mem.c -o objs/poke_commands_mem.o $(CXXFLAGS)
+
+objs/poke_commands_pci.o: poke_commands_pci.c
+	$(CPP) -c poke_commands_pci.c -o objs/poke_commands_pci.o $(CXXFLAGS)
+
+objs/poke_commands_ports.o: poke_commands_ports.c
+	$(CPP) -c poke_commands_ports.c -o objs/poke_commands_ports.o $(CXXFLAGS)
+
+objs/pci_info.o: pci_info.cpp
+	$(CPP) -c pci_info.cpp -o objs/pci_info.o $(CXXFLAGS)
+
+objs/poke_io_dos.o: poke_io_dos.cpp
+	$(CPP) -c poke_io_dos.cpp -o objs/poke_io_dos.o $(CXXFLAGS)
+
+objs/DScalerDriver.o: DScalerDriver.cpp
+	$(CPP) -c HardwareDriver.cpp -o objs/HardwareDriver.o $(CXXFLAGS)
+
+objs/speaker.o: speaker.c
+	$(CPP) -c speaker.c -o objs/speaker.o $(CXXFLAGS)
+
+objs/Poke.res: Poke.rc 
+	$(WINDRES) -i Poke.rc --input-format=rc -o objs/Poke.res -O coff 

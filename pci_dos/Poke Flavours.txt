@@ -1,0 +1,14 @@
+Poke cames in several flavours:
+
+- BeOS/Haiku	| Main version. Feature complete. Uses the poke driver, although it could use syscalls.
+
+- DOS			| Meant to run in plain D.O.S. No MEM commands here. Rudolf may have a use for this.
+- Win9x		| Same features as D.O.S, no driver needed.
+
+- Win9x-Driver	| Feature complete, but depends on an external .vxd driver I "stole" from other prog.
+
+There's no GNU/Linux or *BSD version, should be pretty easy to add one, but I doubt there's a need for those.
+
+There's no WinNT/2k/XP version. Reasons:
+- I'm unable to build my own .vxd and .sys drivers with MinGW/CygWin/GCC, help?
+- I don't have any WinNT/2k/XP system at hand.
