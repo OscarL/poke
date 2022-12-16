@@ -76,6 +76,10 @@ void	pc_speaker_beep(uint16 freq, uint duration);
 #define	BEEP()	pc_speaker_beep(1000, 125000)
 #endif
 
+#if !defined(__BEOS__)
+void	snooze(uint32 microseconds);
+#endif
+
 
 #ifdef __cplusplus
 }

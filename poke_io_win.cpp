@@ -2,7 +2,7 @@
 #include "pci_info.h"
 
 // Using DScaler's driver until I find out how to build a driver with GCC/MingW
-#include "DScalerDriver.h"
+#include "HardwareDriver.h"
 
 // Finally! we can create WDM (.sys) drivers with GCC+MinGW using this:
 // gcc -o driver.sys driver1.c driver2.c -s -shared -Wl,--entry,_DriverEntry@8 -nostartfiles -nostdlib -L. -lntoskrn
@@ -18,7 +18,7 @@ extern "C" {
 ////////////////////////////////////////////////////////////////////////////////
 //	#pragma mark - Poke driver
 
-static TDScalerDriver* sDriver;
+static CHardwareDriver* sDriver;
 
 
 void close_poke_driver()
@@ -32,7 +32,7 @@ status_t open_poke_driver()
 {
 	close_poke_driver();
 
-	sDriver = new TDScalerDriver();
+	sDriver = new CHardwareDriver();
 	if ((sDriver != NULL) && (sDriver->LoadDriver() == true))
 		return pci_init();
 
@@ -85,7 +85,7 @@ uint32 in_port(uint16 port, uint8 size)
 //			status, cmd.dwAddress, cmd.dwValue, cmd.dwFlags, in_val);
 
 	if (status != ERROR_SUCCESS/* || cmd.dwFlags != size*/)
-		return status;
+//		return status;
 		printf("Error while reading port.\n");
 
 	return in_val;
@@ -181,7 +181,7 @@ out_port_indexed(uint16 port, uint8 index, uint8 value)
 ////////////////////////////////////////////////////////////////////////////////
 //	#pragma mark - PCI
 
-status_t
+uint32
 poke_read_pci_config(uint8 bus, uint8 device, uint8 function, uint8 offset,
 					uint8 size)
 {
@@ -341,10 +341,10 @@ poke_unmap_physical_mem(area_id area)
 ////////////////////////////////////////////////////////////////////////////////
 //	#pragma mark - Misc
 
-void snooze(uint32 miliseconds)
+void snooze(uint32 microseconds)
 {
 	uint32 start = GetTickCount();
-	while (GetTickCount() <= (start + miliseconds)) {
+	while (GetTickCount() <= (start + (microseconds / 1000))) {
 		;
 	}
 }

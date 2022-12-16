@@ -11,6 +11,7 @@
 #endif
 
 #include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -49,7 +50,7 @@ mem_args_ok(int min_argc, int max_argc, bool phys_cmd, int argc, uint32 address)
 	if (!phys_cmd) {
 	 	if (mem_state == MEM_NOT_MAPPED) {
 			printf("address 0x%08lX is not mapped, use the 'physical'"
-			" version of this command\n", address);
+					" version of this command\n", address);
 			return false;
 		} else if (mem_state == MEM_PROTECTED) {
 			printf("address 0x%08lX belongs to a protected memory area\n",
@@ -186,7 +187,12 @@ void command_sl(int argc, uint32 argv[])
 
 void read_physical_mem(int size, int argc, uint32 argv[])
 {
+#if defined(__WIN32__)	// Win* implementation is a bit hackish.
+	area_id area = 0;
+#else
 	area_id area = -1;
+#endif
+
 	uint32 address, offset;
 
 	if (!mem_args_ok(1, 1, true, argc, argv[0]))
@@ -237,7 +243,12 @@ void command_dpl(int argc, uint32 argv[])
 
 void command_dpm(int argc, uint32 argv[])
 {
+#if defined(__WIN32__)
+	area_id area = 0;
+#else
 	area_id area = -1;
+#endif
+
 	uint32 address, offset;
 
 	if (!mem_args_ok(1, 2, true, argc, argv[0]))
@@ -294,7 +305,12 @@ void command_dpm(int argc, uint32 argv[])
 
 void write_physical_mem(int size, int argc, uint32 argv[])
 {
+#if defined(__WIN32__)
+	area_id area = 0;
+#else
 	area_id area = -1;
+#endif
+
 	uint32 address, offset;
 
 	if (!mem_args_ok(2, 2, true, argc, argv[0]))
@@ -402,7 +418,12 @@ void command_dumpvm(int argc, uint32 argv[])
 
 void command_dumppm(int argc, uint32 argv[])
 {
+#if defined(__WIN32__)
+	area_id area = 0;
+#else
 	area_id area = -1;
+#endif
+
 	uint32 address, dummy = 0;
 	int fd;
 	char filename[B_FILE_NAME_LENGTH];
@@ -452,7 +473,7 @@ void command_dumppm(int argc, uint32 argv[])
 #endif
 	}
 
-// (Historical note)
+// Historical note:
 
 	// Don't know why, but on Win I get more bytes than requested. Example:
 	// "dumppm 0xdfee0000 32 1" should produce "C:\poke_pm_dump.01" of 131,072

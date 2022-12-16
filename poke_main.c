@@ -40,11 +40,11 @@ char*	trimstring(char str[]);
 		#if defined(USE_READLINE)
 			#include "history.h"
 		#endif
-	#endif
 
-	// Interface to lib{edit|read}line.so completion
-	char*	command_generator(const char text[], int);
-	char**	command_completion(const char text[], int start, int end);
+		// Interface to lib{edit|read}line.so completion
+		char*	command_generator(const char text[], int);
+		char**	command_completion(const char text[], int start, int end);
+	#endif
 #endif
 
 
@@ -63,7 +63,7 @@ typedef struct {
 // 8-bits = Byte, 16-bits = Word, 32-bits = Long.
 
 command commands[] = {
-	{  "db",		command_db,			"address",					"Display a byte" },
+	{  "db",		command_db,			"address",					"Display a byte in virtual space" },
 	{  "dw",		command_dw,			"address",					"Display a word (16 bits)" },
 	{  "dl",		command_dl,			"address",					"Display a long (32 bits)" },
 	{  "dm",		command_dm,			"address [count]",			"Display 'count' memory bytes" },
@@ -84,12 +84,13 @@ command commands[] = {
 	{ "dumpvm",		command_dumpvm,		"address count n",			"Dump 'count' pages of virt mem to file n" },
 	{ "dumppm",		command_dumppm,		"address count n",			"Dump 'count' pages of phys mem to file n" },
 
-	{ "inb",		command_inb,		"port [last_port]",			"Read IO byte(s) from port(s)" },
-	{ "outb",		command_outb,		"port value",				"Set an IO byte" },
-	{ "inw",		command_inw,		"port",						"Read an IO word" },
-	{ "outw",		command_outw,		"port value",				"Set an IO word" },
-	{ "inl",		command_inl,		"port",						"Read IO long" },
-	{ "outl",		command_outl,		"port value",				"Set an IO long" },
+	{ "inb",		command_inb,		"port [last_port]",			"Read I/O byte(s) from port(s)" },
+	{ "inw",		command_inw,		"port",						"Read an I/O word" },
+	{ "inl",		command_inl,		"port",						"Read an I/O long" },
+
+	{ "outb",		command_outb,		"port value",				"Set an I/O byte" },
+	{ "outw",		command_outw,		"port value",				"Set an I/O word" },
+	{ "outl",		command_outl,		"port value",				"Set an I/O long" },
 
 	{ "idxinb",		command_idxinb,		"port index [last-idx]",	"Display VGA-style indexed reg(s)" },
 	{ "idxoutb",	command_idxoutb,	"port index value",			"Write a VGA-style indexed reg" },
@@ -97,11 +98,12 @@ command commands[] = {
 	{ "pci",		command_pci,		"[bus dev fun]",			"Display PCI device info" },
 	{ "pcilist",	command_pcilist,	"",							"List PCI devices" },
 
-	{ "cfinb",		command_cfinb,		"bus dev fun off [count]",	"Read PCI config byte(s) starting at offset" },
+	{ "cfinb",		command_cfinb,		"bus dev fun off [last-off]",	"Read PCI config byte(s)" },
+	{ "cfinw",		command_cfinw,		"bus dev fun off [last-off]",	"Read PCI config word(s)" },
+	{ "cfinl",		command_cfinl,		"bus dev fun off [last-off]",	"Read PCI config long(s)" },
+
 	{ "cfoutb",		command_cfoutb,		"bus dev fun off val",		"Write a PCI config byte" },
-	{ "cfinw",		command_cfinw,		"bus dev fun off [count]",	"Read PCI config word(s)" },
 	{ "cfoutw",		command_cfoutw,		"bus dev fun off val",		"Write a PCI config word" },
-	{ "cfinl",		command_cfinl,		"bus dev fun off [count]",	"Read PCI config long(s)" },
 	{ "cfoutl",		command_cfoutl,		"bus dev fun off val",		"Write a PCI config long" },
 
 #ifdef DONT_USE_LINE_EDITING
@@ -119,10 +121,16 @@ command commands[] = {
 	{ "exit",		command_quit,		"",							"Quit poking around" },
 	{ "about",		command_about,		"",							"About this program" },
 
-//	{ NULL,			NULL,				NULL,						NULL }
+#if defined(__WIN32__)
+	{ NULL,			NULL,				NULL,						NULL }
+#endif
 };
 
-static const int kCommandsCount = (sizeof(commands) / sizeof(command));// - 1;
+#if defined(__WIN32__)
+static const int kCommandsCount = (sizeof(commands) / sizeof(command)) - 1;
+#else
+static const int kCommandsCount = (sizeof(commands) / sizeof(command));
+#endif
 
 static int done = 0;
 
@@ -136,16 +144,21 @@ static int gNumMode = kDecMode;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#define _kNormal_	"\e[m"
-#define _kBold_		"\e[0;1m"
-#define _kRed_		"\e[0;1;31m"
-#define _kGreen_	"\e[0;1;32m"
-#define _kYellow_	"\e[0;1;33m"
+#if defined(__BEOS__)
+	#define _kNormal_	"\e[m"
+	#define _kBold_		"\e[0;1m"
+	#define _kRed_		"\e[0;1;31m"
+	#define _kGreen_	"\e[0;1;32m"
+	#define _kYellow_	"\e[0;1;33m"
 
-#define	HAIKU_COLOR_STRING _kGreen_"H"_kRed_"a"_kBold_"ih"_kYellow_"u"_kNormal_
+	#define	HAIKU_COLOR_STRING _kGreen_"H"_kRed_"a"_kBold_"ih"_kYellow_"u"_kNormal_
 
-#define	INTRO_STRING "\nWelcome to "HAIKU_COLOR_STRING"'s "_kGreen_"h4ck3rz"_kNormal_" shell! (mmu_man would be proud ;-P)\n"
-//#define	INTRO_STRING "\nWelcome to the poke shell! (type 'help' if you need it)\n"
+	#define	INTRO_STRING "\nWelcome to "HAIKU_COLOR_STRING"'s "_kGreen_"h4ck3rz"_kNormal_" shell! (mmu_man would be proud ;-P)\n"
+	//#define	INTRO_STRING "\nWelcome to the poke shell! (type 'help' if you need it)\n"
+#else
+	//#define	INTRO_STRING "\nWelcome to Haiku's h4xor shell! (mmu_man would be proud ;-P)\n"
+	#define	INTRO_STRING "\nWelcome to the poke shell! (type 'help' if you need it)\n"
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -153,6 +166,7 @@ static int gNumMode = kDecMode;
 
 int main(int argc, char* argv[])
 {
+	status_t status;
 	char line[255];
 	char* s;
 
@@ -161,21 +175,19 @@ int main(int argc, char* argv[])
 	// with arguments (like "poke -"), read from stdin in that case.
 	if (!isatty(STDIN_FILENO) && (argc == 1)) {
 		char command[256 + 10];
-		sprintf(command, "Terminal %s", argv[0]);
+		sprintf(command, "Terminal \"%s\"", argv[0]);
 		system(command);
 		return B_OK;
 	}
+
+	system("sync");		// Better safe than sorry.
 #endif
 
-	status_t status = open_poke_driver();
+	status = open_poke_driver();
 	if (status < B_OK) {
 		printf("Couldn't open the poke driver, reason: %s\n", strerror(status));
 		return B_ERROR;
 	}
-
-#if defined(__BEOS__)
-	system("sync");		// Better safe than sorry.
-#endif
 
 	printf(INTRO_STRING);
 	printf("(num args expected to be %s)\n\n",
@@ -216,10 +228,12 @@ int main(int argc, char* argv[])
 	// review this, at start I get "poke: poke: something" when I hit cursor up.
 	if (!isatty(STDIN_FILENO) && (argc == 1)) {
 		char command[256 + 10];
-		sprintf(command, "Terminal %s", argv[0]);
+		sprintf(command, "Terminal \"%s\"", argv[0]);
 		system(command);
 		return B_OK;
 	}
+
+	system("sync");		// Better safe than sorry.
 #endif
 
 	status = open_poke_driver();
@@ -227,10 +241,6 @@ int main(int argc, char* argv[])
 		printf("Couldn't open the poke driver, reason: %s\n", strerror(status));
 		return B_ERROR;
 	}
-
-#if defined(__BEOS__)
-	system("sync");		// Better safe than sorry.
-#endif
 
 	printf(INTRO_STRING);
 	printf("(Numeric arguments will be interpreted as %s)\n\n",
@@ -246,7 +256,12 @@ int main(int argc, char* argv[])
 	rl_readline_name = "poke";	// allow custom keybindings in ~/.inputrc
 	rl_attempted_completion_function = command_completion;
 
+#if defined(__WIN32__)
+	read_history(NULL);
+	using_history();
+#else
 	read_history(history_file);
+#endif
 
 	while (done == 0) {
 		line = readline("poke: ");
@@ -261,7 +276,11 @@ int main(int argc, char* argv[])
 		free(line);
 	}
 
+#if defined(__WIN32__)
+	write_history(NULL);
+#else
 	write_history(history_file);
+#endif
 
 	close_poke_driver();
 
@@ -356,9 +375,7 @@ status_t process_line(char line[])
 				break;
 			}
 		}
-	}
-	else
-	{
+	} else {
 		argument = strtok(NULL, " ");
 		if (argument != NULL) {
 			argv[0] = index_for_command(argument);
@@ -480,8 +497,10 @@ void command_beep(int argc, uint32 argv[])
 {
 	switch (argc) {
 		case 0:	pc_speaker_beep(1000, 250000);				break;
-		case 1:	pc_speaker_beep(argv[0], 250000);    		break;
-        case 2: pc_speaker_beep(argv[0], argv[1] * 1000);	break;
+		case 1:	pc_speaker_beep(argv[0], 250000);   	 	break;
+		case 2: pc_speaker_beep(argv[0], (argv[1] <= 2000) ?
+								(argv[1] * 1000): 2000000);
+		break;
 		default:
 			printf("Wrong number of arguments\n");
 		break;

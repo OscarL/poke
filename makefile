@@ -6,7 +6,7 @@
 # DONT_USE_LINE_EDITING = TRUE
 # USE_READLINE = TRUE
 USE_EDITLINE = TRUE
-# USE_ECL = TRUE
+# USE_ECL = TRUE << not yet ready.
 #########################################
 
 NAME = ../poke
