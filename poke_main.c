@@ -99,7 +99,8 @@ command commands[] = {
 	{ "cfoutl",		command_cfoutl,		"bus dev fun off val",		"Write a PCI config long" },
 
 #ifdef DONT_USE_LINE_EDITING
-	{ "r",			command_repeat,		"",							"Repeat last command" },
+// ToDo:
+//	{ "r",			command_repeat,		"",							"Repeat last command" },
 #endif
 
 	{ "?",			command_help,		"[command]",				"Show help (for [command])" },
