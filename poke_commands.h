@@ -7,7 +7,7 @@
 #ifndef _POKE_COMMANDS_H_
 #define _POKE_COMMANDS_H_
 
-#if defined(__BEOS__)
+#if defined(__BEOS__) || defined(__HAIKU__)
 	#include <SupportDefs.h>
 #else
 	#include "SupportDefs.h"

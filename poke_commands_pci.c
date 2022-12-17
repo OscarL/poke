@@ -197,7 +197,7 @@ void pci_config_out(int size, int argc, uint32 argv[])
 	poke_write_pci_config(argv[0], argv[1], argv[2], argv[3], size, argv[4]);
 
 	sprintf(buffer,
-			"bus %%02d device %%02d function %%02d offset %%02d: is now %s\n",
+			"bus %%02d device %%02d function %%02d offset 0x%02lX: is now %s\n",
 			(size == 4) ? "0x%08lX" : (size == 2) ? "0x%04lX" : "0x%02lX");
 
 	read_back = poke_read_pci_config(argv[0], argv[1], argv[2], argv[3], size);

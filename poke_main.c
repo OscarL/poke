@@ -7,7 +7,7 @@
 #include "poke_commands.h"
 #include "poke_io.h"
 
-#if defined(__BEOS__)
+#if defined(__BEOS__) || defined(__HAIKU__)
 	#include <FindDirectory.h>
 #endif
 
@@ -32,19 +32,11 @@ int   	index_for_command(const char name[]);
 char*	trimstring(char str[]);
 
 
-#ifndef DONT_USE_LINE_EDITING
-	#if defined(USE_ECL)
-		#include "EditableCmdLine.h"
-	#else
-		#include "readline.h"
-		#if defined(USE_READLINE)
-			#include "history.h"
-		#endif
-
-		// Interface to lib{edit|read}line.so completion
-		char*	command_generator(const char text[], int);
-		char**	command_completion(const char text[], int start, int end);
-	#endif
+#ifdef USE_EDITLINE
+	#include <editline/readline.h>
+	// Interface to lib{edit|read}line.so completion
+	char*	command_generator(const char text[], int);
+	char**	command_completion(const char text[], int start, int end);
 #endif
 
 
@@ -144,7 +136,7 @@ static int gNumMode = kDecMode;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#if defined(__BEOS__)
+#if defined(__BEOS__) || defined(__HAIKU__)
 	#define _kNormal_	"\e[m"
 	#define _kBold_		"\e[0;1m"
 	#define _kRed_		"\e[0;1;31m"
@@ -153,7 +145,7 @@ static int gNumMode = kDecMode;
 
 	#define	HAIKU_COLOR_STRING _kGreen_"H"_kRed_"a"_kBold_"ih"_kYellow_"u"_kNormal_
 
-	#define	INTRO_STRING "\nWelcome to "HAIKU_COLOR_STRING"'s "_kGreen_"h4ck3rz"_kNormal_" shell! (mmu_man would be proud ;-P)\n"
+	#define	INTRO_STRING "\nWelcome to "HAIKU_COLOR_STRING"'s hardware-"_kGreen_"h4ck3rz"_kNormal_" shell! (mmu_man would be proud ;-P)\n"
 	//#define	INTRO_STRING "\nWelcome to the poke shell! (type 'help' if you need it)\n"
 #else
 	//#define	INTRO_STRING "\nWelcome to Haiku's h4xor shell! (mmu_man would be proud ;-P)\n"
@@ -170,12 +162,12 @@ int main(int argc, char* argv[])
 	char line[255];
 	char* s;
 
-#if defined(__BEOS__)
+#if defined(__BEOS__) || defined(__HAIKU__)
 	// If not a tty spawn a Terminal window, unless we're called
 	// with arguments (like "poke -"), read from stdin in that case.
 	if (!isatty(STDIN_FILENO) && (argc == 1)) {
 		char command[256 + 10];
-		sprintf(command, "Terminal \"%s\"", argv[0]);
+		sprintf(command, "Terminal -t \"Poke Shell\" \"%s\"", argv[0]);
 		system(command);
 		return B_OK;
 	}
@@ -221,14 +213,14 @@ int main(int argc, char* argv[])
 	char* line;
 	char* s;
 
-#if defined(__BEOS__)
+#if defined(__BEOS__) || defined(__HAIKU__)
 	// If not a tty spawn a Terminal window, unless we're called
 	// with arguments (like "poke -"), read from stdin in that case.
 
 	// review this, at start I get "poke: poke: something" when I hit cursor up.
 	if (!isatty(STDIN_FILENO) && (argc == 1)) {
 		char command[256 + 10];
-		sprintf(command, "Terminal \"%s\"", argv[0]);
+		sprintf(command, "Terminal -t \"Poke Shell\" \"%s\"", argv[0]);
 		system(command);
 		return B_OK;
 	}
@@ -246,7 +238,7 @@ int main(int argc, char* argv[])
 	printf("(Numeric arguments will be interpreted as %s)\n\n",
 			(gNumMode == kDecMode) ? "Decimal" : "Hexadecimal");
 
-#if defined(__BEOS__)
+#if defined(__BEOS__) || defined(__HAIKU__)
 	if (find_directory(B_USER_SETTINGS_DIRECTORY, 0, false, history_file,
 		dummy) == B_OK) {
 		strcat(history_file, "/poke_history");

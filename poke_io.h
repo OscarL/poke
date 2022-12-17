@@ -7,7 +7,7 @@
 #ifndef _POKE_IO_H_
 #define _POKE_IO_H_
 
-#if defined(__BEOS__)
+#if defined(__BEOS__) || defined(__HAIKU__)
 	#include <SupportDefs.h>
 	#include <PCI.h>
 #else
@@ -76,7 +76,7 @@ void	pc_speaker_beep(uint16 freq, uint duration);
 #define	BEEP()	pc_speaker_beep(1000, 125000)
 #endif
 
-#if !defined(__BEOS__)
+#if !defined(__BEOS__) && !defined(__HAIKU__)
 void	snooze(uint32 microseconds);
 #endif
 

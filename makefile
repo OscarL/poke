@@ -1,17 +1,14 @@
-## BeOS Generic Makefile v2.2 ##
+## Haiku Generic Makefile v2.6 ##
 
 #########################################
-## Please choose *one* of these options:
-#########################################
-# DONT_USE_LINE_EDITING = TRUE
-# USE_READLINE = TRUE
 USE_EDITLINE = TRUE
-# USE_ECL = TRUE << not yet ready.
 #########################################
 
 NAME = ../poke
 TYPE = APP
 
+#%{
+# @src->@
 SRCS = \
 	 poke_main.c  \
 	 poke_commands_mem.c  \
@@ -20,44 +17,36 @@ SRCS = \
 	 poke_io_beos.c  \
 	 pc_speaker.c
 
-RSRCS = \
-	 poke.rsrc
+#RDEFS = poke.rdef
 
-ifeq ($(DONT_USE_LINE_EDITING), )
-	ifeq ($(USE_READLINE), TRUE)
-		LIBS = readline history termcap
-		LIBPATHS = ./readline
-		LOCAL_INCLUDE_PATHS = ./readline 
-		SYSTEM_INCLUDE_PATHS = ./readline 
-		DEFINES = USE_READLINE READLINE_LIBRARY
-	else
-		ifeq ($(USE_EDITLINE), TRUE)
-			LIBS = editline termcap
-			LIBPATHS = ./editline
-			LOCAL_INCLUDE_PATHS = ./editline
-			SYSTEM_INCLUDE_PATHS = 
-			DEFINES = USE_EDITLINE
-		else
-			LIBS = EditCL
-			LIBPATHS = ./EditCL
-			LOCAL_INCLUDE_PATHS = ./EditCL
-			SYSTEM_INCLUDE_PATHS = 
-			DEFINES = USE_ECL
-		endif
-	endif
+RSRCS = poke.rsrc
+# @<-src@
+#%}
+
+
+ifeq ($(USE_EDITLINE), TRUE)
+	LIBS = edit
+	DEFINES = USE_EDITLINE
 else
-	LIBPATHS = 
-	SYSTEM_INCLUDE_PATHS = 
+	LIBS =
 	DEFINES = DONT_USE_LINE_EDITING
 endif
 
-OPTIMIZE = FULL
+
+LIBPATHS =
+SYSTEM_INCLUDE_PATHS =
+LOCAL_INCLUDE_PATHS =
+
+OPTIMIZE := FULL
 WARNINGS = ALL
-SYMBOLS = FALSE
-DEBUGGER = FALSE
+SYMBOLS :=
+DEBUGGER :=
 COMPILER_FLAGS =
-LINKER_FLAGS = -s
+LINKER_FLAGS =
 APP_VERSION =
 
-## include the makefile-engine
-include $(BUILDHOME)/etc/makefile-engine
+## Include the Makefile-Engine
+DEVEL_DIRECTORY := \
+	$(shell findpaths -r "makefile_engine" B_FIND_PATH_DEVELOP_DIRECTORY)
+include $(DEVEL_DIRECTORY)/etc/makefile-engine
+

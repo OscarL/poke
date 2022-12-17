@@ -5,10 +5,11 @@
 //
 
 #include "poke_io.h"
-#include "poke.h"			// "private/drivers/poke.h"
 
-#include <unistd.h>
 #include <errno.h>
+#include <unistd.h>
+
+#include <private/drivers/poke.h>
 
 
 static int sFD = -1;		// File Descriptor for the poke driver

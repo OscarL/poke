@@ -6,7 +6,7 @@
 
 #include "poke_io.h"
 
-#if defined(__BEOS__)
+#if defined(__BEOS__) || defined(__HAIKU__)
 	#include <FindDirectory.h>
 #endif
 
@@ -284,7 +284,7 @@ void command_dpm(int argc, uint32 argv[])
 		for (i = 0; i < 16; i++) {
 			uint8 tmp = MEM8(address + i);
 			// Printable ASCII or dot.
-			printf("%c", (tmp > 32) && (tmp < 127) ? tmp : '.');
+			printf("%c", (tmp >= 32) && (tmp < 127) ? tmp : '.');
 		}
 
 		printf("\n");
@@ -371,6 +371,13 @@ void command_spl(int argc, uint32 argv[])
 ////////////////////////////////////////////////////////////////////////////////
 //	#pragma mark - Page Dumps
 
+
+#if defined(__WIN32__)
+	#define OPEN_FLAGS (O_WRONLY | O_CREAT | O_TRUNC | O_BINARY)
+#else
+	#define OPEN_FLAGS (O_WRONLY | O_CREAT | O_TRUNC)
+#endif
+
 // argv[0] = start address, argv[1] = number of pages,
 // argv[2] = filename's suffix (ie: dumpfile.01, dumpfile.02, etc)
 
@@ -382,7 +389,7 @@ void command_dumpvm(int argc, uint32 argv[])
 	if (!mem_args_ok(3, 3, false, argc, argv[0]))
 		return;
 
-#if defined(__BEOS__)
+#if defined(__BEOS__) || defined(__HAIKU__)
 	if (find_directory(B_USER_DIRECTORY, 0, false, filename, dummy) == B_OK) {
 		strcat(filename, "/poke_vm_dump.%02d");
 		sprintf(filename, filename, argv[2]);
@@ -392,7 +399,7 @@ void command_dumpvm(int argc, uint32 argv[])
 
 	sprintf(filename, "poke_vm_dump.%02d", (int) argv[2]);
 
-	fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+	fd = open(filename, OPEN_FLAGS, 0666);
 	if (fd < 0) {
 		printf("Couldn't create output file, reason: %s.\n", strerror(errno));
 		return;
@@ -432,7 +439,7 @@ void command_dumppm(int argc, uint32 argv[])
 	if (!mem_args_ok(3, 3, true, argc, argv[0]))
 		return;
 
-#if defined(__BEOS__)
+#if defined(__BEOS__) || defined(__HAIKU__)
 	if (find_directory(B_USER_DIRECTORY, 0, false, filename, dummy) == B_OK) {
 		strcat(filename, "/poke_pm_dump.%02d");
 		sprintf(filename, filename, argv[2]);
@@ -442,7 +449,7 @@ void command_dumppm(int argc, uint32 argv[])
 
 	sprintf(filename, "poke_pm_dump.%02d", (int) argv[2]);
 
-	fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+	fd = open(filename, OPEN_FLAGS, 0666);
 	if (fd < 0) {
 		printf("Couldn't create output file, reason: %s.\n", strerror(errno));
 		return;
