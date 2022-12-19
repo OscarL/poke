@@ -1,8 +1,11 @@
-//
-// Copyright 2005, Haiku Inc. Distributed under the terms of the MIT license.
-// Author(s):
-// - Oscar Lesta <oscar@users.berlios.de>.
-//
+/*
+ * Copyright 2005-2022 Haiku, Inc. All rights reserved.
+ * Distributed under the terms of the MIT License.
+ *
+ * Authors:
+ *		Oscar Lesta, oscar.lesta@gmail.com
+ */
+
 
 #include "poke_io.h"
 
@@ -17,34 +20,34 @@ static void dump_pci_info(pci_info* pciinfo)
 	uint8 i;
 
 	printf("bus %02d device %02d function %02d: vendor 0x%04X device 0x%04X revision 0x%02X\n",
-			pciinfo->bus, pciinfo->device, pciinfo->function,
-			pciinfo->vendor_id, pciinfo->device_id, pciinfo->revision);
+		pciinfo->bus, pciinfo->device, pciinfo->function,
+		pciinfo->vendor_id, pciinfo->device_id, pciinfo->revision);
 
 	printf("  class_base = 0x%02x class_function = 0x%02x class_api   = 0x%02x\n",
-			pciinfo->class_base, pciinfo->class_sub, pciinfo->class_api);
+		pciinfo->class_base, pciinfo->class_sub, pciinfo->class_api);
 
 	printf("  line_size  = 0x%02x latency_timer  = 0x%02x header_type = 0x%02x BIST = 0x%02x\n",
-			pciinfo->line_size, pciinfo->latency, pciinfo->header_type,
-			pciinfo->bist);
+		pciinfo->line_size, pciinfo->latency, pciinfo->header_type,
+		pciinfo->bist);
 
 	printf("  interrupt  = 0x%02x interrupt_pin  = 0x%02x min_grant   = 0x%02x max_latency = 0x%02x\n",
-			pciinfo->u.h0.interrupt_line, pciinfo->u.h0.interrupt_pin,
-			pciinfo->u.h0.min_grant, pciinfo->u.h0.max_latency);
+		pciinfo->u.h0.interrupt_line, pciinfo->u.h0.interrupt_pin,
+		pciinfo->u.h0.min_grant, pciinfo->u.h0.max_latency);
 
 	printf("  rom_base    = 0x%08lX pci = 0x%08lX size = 0x%08lX\n",
-			pciinfo->u.h0.rom_base, pciinfo->u.h0.rom_base_pci,
-			pciinfo->u.h0.rom_size);
+		pciinfo->u.h0.rom_base, pciinfo->u.h0.rom_base_pci,
+		pciinfo->u.h0.rom_size);
 
 	printf("  cardbus_cis = 0x%08lX subsystem_id = 0x%04X subsystem_vendor_id = 0x%04X\n",
-			pciinfo->u.h0.cardbus_cis, pciinfo->u.h0.subsystem_id,
-			pciinfo->u.h0.subsystem_vendor_id);
+		pciinfo->u.h0.cardbus_cis, pciinfo->u.h0.subsystem_id,
+		pciinfo->u.h0.subsystem_vendor_id);
 
 	for (i = 0; i < 6; i++) {
 		printf("  base reg %d: host addr 0x%08lX pci 0x%08lX size 0x%08lX flags 0x%02X\n",
-				i, pciinfo->u.h0.base_registers[i],
-				pciinfo->u.h0.base_registers_pci[i],
-				pciinfo->u.h0.base_register_sizes[i],
-				pciinfo->u.h0.base_register_flags[i]);
+			i, pciinfo->u.h0.base_registers[i],
+			pciinfo->u.h0.base_registers_pci[i],
+			pciinfo->u.h0.base_register_sizes[i],
+			pciinfo->u.h0.base_register_flags[i]);
 	}
 }
 
@@ -62,10 +65,7 @@ void command_pci(int argc, uint32 argv[])
 			continue;
 		}
 
-		if (pciinfo.bus			== argv[0] &&
-			pciinfo.device		== argv[1] &&
-			pciinfo.function	== argv[2])
-		{
+		if (pciinfo.bus == argv[0] && pciinfo.device == argv[1] && pciinfo.function == argv[2]) {
 			dump_pci_info(&pciinfo);
 			devfound++;
 			break;
@@ -85,8 +85,8 @@ void command_pcilist(int argc, uint32 argv[])
 	while ((poke_get_nth_pci_info(i, &pciinfo) == B_OK)) {
 		i++;
 		printf("bus %02d device %02d function %02d: vendor 0x%04X device 0x%04X revision 0x%02X\n",
-				pciinfo.bus, pciinfo.device, pciinfo.function,
-				pciinfo.vendor_id, pciinfo.device_id, pciinfo.revision);
+			pciinfo.bus, pciinfo.device, pciinfo.function,
+			pciinfo.vendor_id, pciinfo.device_id, pciinfo.revision);
 	}
 }
 
@@ -127,7 +127,7 @@ static void pci_config_in(int size, int argc, uint32 argv[])
 	}
 
 	printf("bus %02d device %02d function %02d:", (int) argv[0], (int) argv[1],
-			(int) argv[2]);
+		(int) argv[2]);
 
 	// only one reg requested.
 	if (count == 1) {
@@ -197,8 +197,8 @@ void pci_config_out(int size, int argc, uint32 argv[])
 	poke_write_pci_config(argv[0], argv[1], argv[2], argv[3], size, argv[4]);
 
 	sprintf(buffer,
-			"bus %%02d device %%02d function %%02d offset 0x%02lX: is now %s\n",
-			(size == 4) ? "0x%08lX" : (size == 2) ? "0x%04lX" : "0x%02lX");
+		"bus %%02d device %%02d function %%02d offset 0x%02lX: is now %s\n",
+		(size == 4) ? "0x%08lX" : (size == 2) ? "0x%04lX" : "0x%02lX");
 
 	read_back = poke_read_pci_config(argv[0], argv[1], argv[2], argv[3], size);
 	printf(buffer, argv[0], argv[1], argv[2], argv[3], read_back);

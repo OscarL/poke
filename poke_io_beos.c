@@ -1,8 +1,11 @@
-//
-// Copyright 2005, Haiku Inc. Distributed under the terms of the MIT license.
-// Author(s):
-// - Oscar Lesta <oscar@users.berlios.de>.
-//
+/*
+ * Copyright 2005-2022 Haiku, Inc. All rights reserved.
+ * Distributed under the terms of the MIT License.
+ *
+ * Authors:
+ *		Oscar Lesta, oscar.lesta@gmail.com
+ */
+
 
 #include "poke_io.h"
 
@@ -12,7 +15,7 @@
 #include <private/drivers/poke.h>
 
 
-static int sFD = -1;		// File Descriptor for the poke driver
+static int sFD = -1; // File Descriptor for the poke driver
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -84,7 +87,8 @@ void out_port(uint16 port, uint32 value, uint8 size)
 	cmd.size = size;
 	cmd.value = value;
 
-	if (sFD)	ioctl(sFD, POKE_PORT_WRITE, &cmd);
+	if (sFD)
+		ioctl(sFD, POKE_PORT_WRITE, &cmd);
 }
 
 
@@ -138,7 +142,8 @@ void out_port_indexed(uint16 port, uint8 index, uint8 value)
 	cmd.size = index;
 	cmd.value = value;
 
-	if (sFD) ioctl(sFD, POKE_PORT_INDEXED_WRITE, &cmd);
+	if (sFD)
+		ioctl(sFD, POKE_PORT_INDEXED_WRITE, &cmd);
 }
 
 
@@ -147,18 +152,18 @@ void out_port_indexed(uint16 port, uint8 index, uint8 value)
 
 uint32
 poke_read_pci_config(uint8 bus, uint8 device, uint8 function, uint8 offset,
-					uint8 size)
+	uint8 size)
 {
 	status_t status = B_ERROR;
 	pci_io_args cmd;
 
 	cmd.signature = POKE_SIGNATURE;
-	cmd.bus       = bus;
-	cmd.device    = device;
+	cmd.bus = bus;
+	cmd.device = device;
 	cmd.function  = function;
-	cmd.size      = size;
-	cmd.offset    = offset;
-	cmd.value     = 0;
+	cmd.size = size;
+	cmd.offset = offset;
+	cmd.value = 0;
 
 	if (sFD)
 		status = ioctl(sFD, POKE_PCI_READ_CONFIG, &cmd);
@@ -172,19 +177,20 @@ poke_read_pci_config(uint8 bus, uint8 device, uint8 function, uint8 offset,
 
 void
 poke_write_pci_config(uint8 bus, uint8 device, uint8 function, uint8 offset,
-						uint8 size, uint32 value)
+	uint8 size, uint32 value)
 {
 	pci_io_args cmd;
 
 	cmd.signature = POKE_SIGNATURE;
-	cmd.bus       = bus;
-	cmd.device    = device;
+	cmd.bus = bus;
+	cmd.device = device;
 	cmd.function  = function;
-	cmd.size      = size;
-	cmd.offset    = offset;
-	cmd.value     = value;
+	cmd.size = size;
+	cmd.offset = offset;
+	cmd.value = value;
 
-	if (sFD)	ioctl(sFD, POKE_PCI_WRITE_CONFIG, &cmd);
+	if (sFD)
+		ioctl(sFD, POKE_PCI_WRITE_CONFIG, &cmd);
 }
 
 
@@ -195,9 +201,9 @@ poke_get_nth_pci_info(int index, pci_info* pciinfo)
 	pci_info_args cmd;
 
 	cmd.signature = POKE_SIGNATURE;
-	cmd.index     = index;
-	cmd.info      = pciinfo;
-	cmd.status    = B_ERROR;
+	cmd.index = index;
+	cmd.info = pciinfo;
+	cmd.status = B_ERROR;
 
 	if (sFD)
 		status = ioctl(sFD, POKE_GET_NTH_PCI_INFO, &cmd);
@@ -219,7 +225,7 @@ int memory_state_of(uint32 memAddress)
 
 	area = area_for((void*) memAddress);
 	if (area < 0)
-		return MEM_NOT_MAPPED;	// memAddress not in local address space.
+		return MEM_NOT_MAPPED; // memAddress not in local address space.
 
 	// are B_READ_AREA or B_WRITE_AREA set?
 	if (get_area_info(area, &info) != B_OK || (!info.protection))
@@ -240,9 +246,9 @@ poke_map_physical_mem(uint32 phys_address, uint32* virtual_address, uint32* off)
 	phys_address -= offset;
 
 	cmd.signature = POKE_SIGNATURE;
-	cmd.name      = "poke_area";	// forget to name the area and await doom.
-	cmd.area      = -1;
-	cmd.size      = B_PAGE_SIZE;
+	cmd.name = "poke_area"; // forget to name the area and await doom.
+	cmd.area = -1;
+	cmd.size = B_PAGE_SIZE;
 	cmd.physical_address = (void*) phys_address;
 	cmd.protection = B_READ_AREA | B_WRITE_AREA;
 	cmd.flags = B_ANY_KERNEL_ADDRESS;
@@ -264,7 +270,7 @@ void poke_unmap_physical_mem(area_id area)
 	mem_map_args cmd;
 
 	cmd.signature = POKE_SIGNATURE;
-	cmd.area      = area;
+	cmd.area = area;
 
 	if (sFD)
 		ioctl(sFD, POKE_UNMAP_MEMORY, &cmd);

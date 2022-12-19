@@ -62,7 +62,7 @@ resource app_version {
 	variety    = B_APPV_BETA,
 	internal   = 1,
 	short_info = "poke!",
-	long_info  = "Haiku's poke replacement © 2005 Haiku Inc."
+	long_info  = "Haiku's poke replacement © 2005-2022 Haiku Inc."
 };
 
 resource app_flags B_SINGLE_LAUNCH;

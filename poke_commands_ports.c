@@ -1,8 +1,11 @@
-//
-// Copyright 2005, Haiku Inc. Distributed under the terms of the MIT license.
-// Author(s):
-// - Oscar Lesta <oscar@users.berlios.de>.
-//
+/*
+ * Copyright 2005-2022 Haiku, Inc. All rights reserved.
+ * Distributed under the terms of the MIT License.
+ *
+ * Authors:
+ *		Oscar Lesta, oscar.lesta@gmail.com
+ */
+
 
 #include "poke_io.h"
 

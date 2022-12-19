@@ -17,7 +17,7 @@ SRCS = \
 	 poke_io_beos.c  \
 	 pc_speaker.c
 
-#RDEFS = poke.rdef
+RDEFS = poke.rdef
 
 RSRCS = poke.rsrc
 # @<-src@
@@ -43,6 +43,7 @@ SYMBOLS :=
 DEBUGGER :=
 COMPILER_FLAGS =
 LINKER_FLAGS =
+DEFINES +=
 APP_VERSION =
 
 ## Include the Makefile-Engine
