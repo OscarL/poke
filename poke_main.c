@@ -150,7 +150,7 @@ static int gNumMode = kDecMode;
 int main(int argc, char* argv[])
 {
 #ifdef USE_EDITLINE
-	char history_file[B_FILE_NAME_LENGTH];
+	char history_file[B_FILE_NAME_LENGTH] = {'\0'};
 	char* line;
 #else
 	char line[255];
@@ -190,7 +190,10 @@ int main(int argc, char* argv[])
 	rl_readline_name = "poke"; // allow custom keybindings in ~/.inputrc
 	rl_attempted_completion_function = command_completion;
 
-	if (history_file)
+	// Disable completion for now, as it currently crashes :-(
+	rl_inhibit_completion = true;
+
+	if (strlen(history_file))
 		read_history(history_file);
 #endif
 
@@ -221,7 +224,7 @@ int main(int argc, char* argv[])
 	}
 
 #ifdef USE_EDITLINE
-	if (history_file)
+	if (strlen(history_file))
 		write_history(history_file);
 #endif
 
@@ -238,12 +241,12 @@ char** command_completion(const char text[], int start, int end)
 	char** matches = NULL;
 
 	// If using libreadline, don't default to complete-filenames.
-	rl_attempted_completion_over = 1;
+//	rl_attempted_completion_over = 1;
 
 	// If this word is at the start of the line, then it is a command to
 	// complete.
 	if (start == 0 || start <= 5) {
-		matches = completion_matches(text, command_generator);
+		matches = completion_matches((char*)text, command_generator);
 //		matches = rl_completion_matches(text, command_generator);
 	}
 	return matches;
