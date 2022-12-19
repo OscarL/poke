@@ -43,18 +43,18 @@ mem_args_ok(int min_argc, int max_argc, bool phys_cmd, int argc, uint32 address)
 	}
 
 	if (phys_cmd && (mem_state != MEM_NOT_MAPPED)) {
-		printf("address 0x%08lX is already mapped, use the 'virtual'"
+		printf("address 0x%08" B_PRIX32 " is already mapped, use the 'virtual'"
 				" version of this command\n", address);
 		return false;
 	}
 
 	if (!phys_cmd) {
 	 	if (mem_state == MEM_NOT_MAPPED) {
-			printf("address 0x%08lX is not mapped, use the 'physical'"
+			printf("address 0x%08" B_PRIX32 "is not mapped, use the 'physical'"
 					" version of this command\n", address);
 			return false;
 		} else if (mem_state == MEM_PROTECTED) {
-			printf("address 0x%08lX belongs to a protected memory area\n",
+			printf("address 0x%08" B_PRIX32 "belongs to a protected memory area\n",
 					address);
 			return false;
 		}
@@ -79,7 +79,7 @@ void command_db(int argc, uint32 argv[])
 		return;
 
 	tmp = MEM8(argv[0]);
-	printf("0x%08lX = 0x%02X\n", argv[0], tmp);
+	printf("0x%08" B_PRIX32 " = 0x%02X\n", argv[0], tmp);
 }
 
 
@@ -91,7 +91,7 @@ void command_dw(int argc, uint32 argv[])
 		return;
 
 	tmp = MEM16(argv[0]);
-	printf("0x%08lX = 0x%04X\n", argv[0], tmp);
+	printf("0x%08" B_PRIX32 " = 0x%04X\n", argv[0], tmp);
 }
 
 
@@ -103,7 +103,7 @@ void command_dl(int argc, uint32 argv[])
 		return;
 
 	tmp = MEM32(argv[0]);
-	printf("0x%08lX = 0x%08lX\n", argv[0], tmp);
+	printf("0x%08" B_PRIX32 " = 0x%08" B_PRIX32 "\n", argv[0], tmp);
 }
 
 //------------------------------------------------------------------------------
@@ -120,7 +120,7 @@ void command_dm(int argc, uint32 argv[])
 	}
 
 	if (argv[1] > 4096) {
-		printf("'count' must be <= 4096 (requested: %ld)\n", argv[1]);
+		printf("'count' must be <= 4096 (requested: %" B_PRId32 ")\n", argv[1]);
 		argv[1] = 4096;
 	}
 
@@ -130,7 +130,7 @@ void command_dm(int argc, uint32 argv[])
 	while (argv[1] > 0) {
 		int i;
 
-		printf("0x%08lX: ", argv[0]);
+		printf("0x%08" B_PRIX32 ": ", argv[0]);
 
 		for (i = 0; i < 16; i++)
 			printf(" %02X", MEM8(argv[0] + i));
@@ -206,9 +206,9 @@ void read_physical_mem(int size, int argc, uint32 argv[])
 	}
 
 	switch (size) {
-		case 1:	printf("0x%08lX = 0x%02X\n",  argv[0], MEM8(address));	break;
-		case 2:	printf("0x%08lX = 0x%04X\n",  argv[0], MEM16(address));	break;
-		case 4:	printf("0x%08lX = 0x%08lX\n", argv[0], MEM32(address));	break;
+		case 1:	printf("0x%08" B_PRIX32 " = 0x%02" B_PRIX8 "\n", argv[0], MEM8(address)); break;
+		case 2:	printf("0x%08" B_PRIX32 " = 0x%04" B_PRIX16 "\n", argv[0], MEM16(address)); break;
+		case 4:	printf("0x%08" B_PRIX32 " = 0x%08" B_PRIX32 "\n", argv[0], MEM32(address)); break;
 	}
 
 	poke_unmap_physical_mem(area);
@@ -251,7 +251,7 @@ void command_dpm(int argc, uint32 argv[])
 	}
 
 	if (argv[1] > (B_PAGE_SIZE - offset)) {
-		printf("'count' will be limited to %ld\n", (B_PAGE_SIZE - offset));
+		printf("'count' will be limited to %" B_PRId32 "\n", (B_PAGE_SIZE - offset));
 		argv[1] = (B_PAGE_SIZE - offset);
 	}
 
@@ -261,7 +261,7 @@ void command_dpm(int argc, uint32 argv[])
 	while (argv[1] > 0) {
 		int i;
 
-		printf("0x%08lX: ", argv[0]);
+		printf("0x%08" B_PRIX32 ": ", argv[0]);
 
 		for (i = 0; i < 16; i++)
 			printf(" %02X", MEM8(address + i));
@@ -308,15 +308,15 @@ void write_physical_mem(int size, int argc, uint32 argv[])
 	switch (size) {
 		case 1:
 			MEM8(address) = (uint8) argv[1];
-			printf("0x%08lX is now: 0x%02X\n", argv[0], MEM8(address));
+			printf("0x%08" B_PRIX32 " is now: 0x%02" B_PRIX8 "\n", argv[0], MEM8(address));
 		break;
 		case 2:
 			MEM16(address) = (uint16) argv[1];
-			printf("0x%08lX is now: 0x%04X\n", argv[0], MEM16(address));
+			printf("0x%08" B_PRIX32 " is now: 0x%04" B_PRIX16 "\n", argv[0], MEM16(address));
 		break;
 		case 4:
 			MEM32(address) = argv[1];
-			printf("0x%08lX is now: 0x%08lX\n", argv[0], MEM32(address));
+			printf("0x%08" B_PRIX32 " is now: 0x%08" B_PRIX32 "\n", argv[0], MEM32(address));
 		break;
 	}
 

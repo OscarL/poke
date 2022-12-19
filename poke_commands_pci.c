@@ -34,16 +34,16 @@ static void dump_pci_info(pci_info* pciinfo)
 		pciinfo->u.h0.interrupt_line, pciinfo->u.h0.interrupt_pin,
 		pciinfo->u.h0.min_grant, pciinfo->u.h0.max_latency);
 
-	printf("  rom_base    = 0x%08lX pci = 0x%08lX size = 0x%08lX\n",
+	printf("  rom_base    = 0x%08" B_PRIX32 " pci = 0x%08" B_PRIX32 " size = 0x%08" B_PRIX32 "\n",
 		pciinfo->u.h0.rom_base, pciinfo->u.h0.rom_base_pci,
 		pciinfo->u.h0.rom_size);
 
-	printf("  cardbus_cis = 0x%08lX subsystem_id = 0x%04X subsystem_vendor_id = 0x%04X\n",
+	printf("  cardbus_cis = 0x%08" B_PRIX32 " subsystem_id = 0x%04X subsystem_vendor_id = 0x%04X\n",
 		pciinfo->u.h0.cardbus_cis, pciinfo->u.h0.subsystem_id,
 		pciinfo->u.h0.subsystem_vendor_id);
 
 	for (i = 0; i < 6; i++) {
-		printf("  base reg %d: host addr 0x%08lX pci 0x%08lX size 0x%08lX flags 0x%02X\n",
+		printf("  base reg %d: host addr 0x%08" B_PRIX32 " pci 0x%08" B_PRIX32 " size 0x%08" B_PRIX32 " flags 0x%02X\n",
 			i, pciinfo->u.h0.base_registers[i],
 			pciinfo->u.h0.base_registers_pci[i],
 			pciinfo->u.h0.base_register_sizes[i],
@@ -131,17 +131,17 @@ static void pci_config_in(int size, int argc, uint32 argv[])
 
 	// only one reg requested.
 	if (count == 1) {
-		printf(" read at 0x%02lX:", argv[3]);
-		sprintf(tmp, " %s\n", (size == 4) ? "0x%08lX" : (size == 2) ? "0x%04X" : "0x%02X");
+		printf(" read at 0x%02" B_PRIX32 ":", argv[3]);
+		sprintf(tmp, " %s\n", (size == 4) ? "0x%08" B_PRIX32 "" : (size == 2) ? "0x%04X" : "0x%02X");
 		printf(tmp, poke_read_pci_config(argv[0], argv[1], argv[2], argv[3], size));
 		return;
 	}
 
 	printf("\n");
-	sprintf(tmp, " %s", (size == 4) ? "%08lX" : (size == 2) ? "%04X" : "%02X");
+	sprintf(tmp, " %s", (size == 4) ? "%08" B_PRIX32 "" : (size == 2) ? "%04X" : "%02X");
 
 	while (count > 0) {
-		printf("  0x%02lX: ", argv[3]);
+		printf("  0x%02" B_PRIX32 ": ", argv[3]);
 
 		for (i = 0; i < (16 / size); i++) {
 			printf(tmp, poke_read_pci_config(argv[0], argv[1], argv[2], argv[3], size));
@@ -197,7 +197,7 @@ void pci_config_out(int size, int argc, uint32 argv[])
 	poke_write_pci_config(argv[0], argv[1], argv[2], argv[3], size, argv[4]);
 
 	sprintf(buffer,
-		"bus %%02d device %%02d function %%02d offset 0x%02lX: is now %s\n",
+		"bus %%02d device %%02d function %%02d offset 0x%%02lX: is now %s\n",
 		(size == 4) ? "0x%08lX" : (size == 2) ? "0x%04lX" : "0x%02lX");
 
 	read_back = poke_read_pci_config(argv[0], argv[1], argv[2], argv[3], size);
