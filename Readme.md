@@ -14,6 +14,12 @@ Building requires:
  - haiku_devel
  - libedit_devel
 
+Build with:
+
+    > make
+
+Basic (and really old and unfinished) docs: [poke.html](https://htmlpreview.github.io/?https://github.com/OscarL/poke/blob/master/poke.html)
+
 Thanks to:
 
  - Eric Huss for his "The C Library Reference Guide".
