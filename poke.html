@@ -1,0 +1,427 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
+	<TITLE>Oscar's Corner [Unfinished Poke's Documentation]</TITLE>
+<!--	<BASE HREF="http://geocities.com/jaicusoft/"> -->
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF" LINK="#DF5E00" ALINK="#0000FF" VLINK="#DF5E00">
+<FONT SIZE="2" FACE="Swis721, Verdana, Tahoma, sans-serif">
+
+<!-- [Title] =============================================================== -->
+
+<CENTER>
+	<HR WIDTH="99%">
+	<B><FONT SIZE="4" COLOR="#1968cd">(soon to be) Haiku's Poke replacement.</FONT></B><BR>
+	<FONT COLOR="gray" SIZE="-2">"Research is what I'm doing when I don't know what I'm doing."<BR>-- Wernher von Braun.</FONT>
+	<BR>
+	<HR WIDTH="99%">
+</CENTER>
+
+<!-- ======================================================================= -->
+
+<TABLE HEIGHT="100%" WIDTH="100%" BORDER="0" CELLPADDING="2" CELLSPACING="2">
+<TR VALIGN="TOP">
+
+<!-- [NavBar] ============================================================== -->
+
+	<TD WIDTH="12%" HEIGHT="100%" VALIGN="top">
+	<TABLE WIDTH="100%">
+		<TR><TD BGCOLOR="#f0f8ff"><B><FONT COLOR="#1968cd"><A HREF="index.html">Back &lt;--</A></FONT></B></TD></TR>
+		<TR><TD>&nbsp;</TD></TR>
+		<TR><TD BGCOLOR="#f0f8ff"><B><FONT COLOR="#1968cd"><A HREF="#What">About</A></FONT></B></TD></TR>
+		<TR><TD BGCOLOR="#f0f8ff"><B><FONT COLOR="#1968cd"><A HREF="#Why">Uses</A></FONT></B></TD></TR>
+		<TR><TD BGCOLOR="#f0f8ff"><B><FONT COLOR="#1968cd"><A HREF="#How">Help</A></FONT></B></TD></TR>
+		<TR><TD BGCOLOR="#f0f8ff"><B><FONT COLOR="#1968cd"><A HREF="#???">Tips</A></FONT></B></TD></TR>
+		<TR><TD BGCOLOR="#f0f8ff"><B><FONT COLOR="#1968cd"><A HREF="#New">What's new</A></FONT></B></TD></TR>
+		<TR><TD>&nbsp;</TD></TR>
+		<TR><TD BGCOLOR="#f0f8ff"><B><FONT COLOR="#1968cd">Up. 13/01/2006</FONT></B></TD></TR>
+	</TABLE>
+	</TD>
+
+	<TD>
+
+<!-- [Content] ============================================================= -->
+
+	<TABLE BORDER="0" CELLPADDING="4" CELLSPACING="1" WIDTH="100%">
+	<TR><TD BGCOLOR="#f0f8ff">
+			<B><FONT COLOR="#1968cd" SIZE="3">PLEASE KEEP IN MIND</FONT></B>
+		<FONT COLOR="#1968cd" SIZE="2"> (THAT THIS)</FONT>
+	</TD></TR>
+	<TR><TD>
+		<P>PAGE IS NOT FINISHED</P>
+	</TD></TR>
+	</TABLE>
+
+	<BR>
+<!-- ======================================================================= -->
+	<BR>
+
+	<TABLE BORDER="0" CELLPADDING="4" CELLSPACING="1" WIDTH="100%">
+	<TR><TD BGCOLOR="#f0f8ff">
+		<A NAME="What">
+			<B><FONT COLOR="#1968cd" SIZE="3">What's this?</FONT></B>
+		</A>
+		<FONT COLOR="#1968cd" SIZE="2"> (in short: a replacement for /boot/bin/poke)</FONT>
+	</TD></TR>
+
+	<TR><TD>
+		<P>In case you didn't knew it, BeOS PE R5 (not sure about older versions)
+		included a useful utility called "poke".<BR>
+		This is an open-source replacement for that app, that aims to improve it
+		where possible.</P>
+		<P>Poke is an interactive "peeking and poking" command line app that
+		allows you to do read/write operations in/to:</P>
+		<UL>
+			<LI>ISA I/O Ports.</LI>
+			<LI>"VGA-Style" indexed ISA Ports.</LI>
+			<LI>PCI Configuration Space Registers.</LI>
+			<LI>Virtual Memory.</LI>
+			<LI>Memory Mapped PCI Registers ("Physical Memory").</LI>
+		</UL>
+
+		<P>You can do that in the following supported platforms:</P>
+		<UL>
+			<LI>BeOS/Haiku (and Zeta, I guess)</LI>
+			<LI>Win9x</LI>
+		</UL>
+		<P>There are even D.O.S. and WinXP versions planned, but those are not yet ready and/or feature complete.
+		Porting it to unixes and/or *BSD should be easy, but I don't see the point in doing it.</P>
+	</TD></TR>
+	</TABLE>
+
+	<BR>
+<!-- ======================================================================= -->
+	<BR>
+
+	<TABLE BORDER="0" CELLPADDING="4" CELLSPACING="1" WIDTH="100%">
+	<TR><TD BGCOLOR="#f0f8ff">
+		<A NAME="Why">
+			<B><FONT COLOR="#1968cd" SIZE="3">What is this good for?</FONT></B>
+		</A>
+		<FONT COLOR="#1968cd" SIZE="2"> (besides making good coffee?)</FONT>
+	</TD></TR>
+
+	<TR><TD>
+		<P>It depends on the problem. For example:</P>
+		<UL>
+			<LI>Are you trying to hunt an evasive bug? Maybe peeking (or poking)
+				some memory locations can help you out.</LI>
+			<LI>Are you working on a driver for a device and you don't have
+				enough hardware information (specs) about it? Then spy what
+				those closed-source driver do!</LI>
+		</UL>
+		<P>Some "real-world" examples:</P>
+		<UL>
+			<LI>While adding Hardware Cursor support for a driver I'm writing,
+				the original poke allowed me to understand how the hardware
+				expected the cursor data to be like in the video-card's mem.
+				I used it to dump the whole mem block that the BeOS driver
+				reserved for the cursor data (16 KB, quite different from what
+				both the Win and XFree86 drivers do, they use only 4 KB,
+				placing the 64x64x2 cursor at the start of that block)</LI>
+			<BR>
+			<LI>On BeOS (using Be-provided graphic-card driver) I've noticed that
+				switching to VESA at boot-time had a nice side-effect: quite
+				a big improvement on the speed on the access to the
+				graphics-card mem (notable drop in the CPU usage of, for
+				example non-overlayed video display).<BR>
+				A more-or-less careful examination of the dumped VGA registers
+				on both BeOS (with/without VESA) and Win9x, plus poking with
+				some of them while executing a graphic-demanding app allowed
+				me to find the best-performing setup for my own driver.</LI>
+			<BR>
+			<LI>Thanks to poke, now my trusty AMD K7 Thunderbird @ 900 MHz,
+				running over a SiS 730 based motherboard, only reaches between 27/30
+				Celcius degrees when idle! (previously it reached an steady 42
+				Celcius degrees). This thanks to have being able to change the
+				appropiate Northbridge's PCI config registers at will.</LI>
+			<BR>
+			<LI>I was hoping that "my beta tester" (All hail Rudolf!!!)
+				would be able to use poke to get 3D support for newer GeForce cards,
+				but it was not possible. Yes, I know it's shocking, but poke is *not* infalible :-P</LI>
+		</UL>
+	</TD></TR>
+	</TABLE>
+
+	<BR>
+<!-- ======================================================================= -->
+	<BR>
+
+	<TABLE BORDER="0" CELLPADDING="4" CELLSPACING="1" WIDTH="100%">
+	<TR><TD BGCOLOR="#f0f8ff">
+		<A NAME="How">
+			<B><FONT COLOR="#1968cd" SIZE="3">Documentation.</FONT></B>
+		</A>
+		<FONT COLOR="#1968cd" SIZE="2"> (kind of)</FONT>
+	</TD></TR>
+
+	<TR><TD>
+		<P>Poke is a shell-like command line application. Just start it, either from
+		Tracker or by invoking it from the shell... then type "help" and hit ENTER
+		to get a list of the available commands.</P>
+		<P>So far, these they are (square brackets indicate optional arguments):</P>
+		<OL>
+			<LI><B><FONT SIZE="3">Basic stuffs</FONT></B></LI>
+			<UL><BR>
+				<LI>Getting help (for
+				<FONT FACE="Courier10 BT, Courier New, FixedSys, mono">'command'</FONT>).</LI>
+				<FONT FACE="Courier10 BT, Courier New, FixedSys, mono">
+				<UL><BR>
+					<LI>help [command]</LI>
+					<LI>? [command]</LI>
+				</UL>
+				</FONT>
+				<BR>
+				<LI>Self-explaing commands</LI>
+				<FONT FACE="Courier10 BT, Courier New, FixedSys, mono">
+				<UL><BR>
+					<LI>clear</LI>
+					<LI>about</LI>
+					<LI>exit</LI>
+					<LI>quit</LI>
+				</UL>
+				</FONT>
+
+			</UL>
+
+			<BR>
+
+			<LI><B><FONT SIZE="3">ISA I/O</FONT></B></LI>
+			<UL><BR>
+				<LI>Reading Byte/Word/Long (8/16/32 bits) from
+				<FONT FACE="Courier10 BT, Courier New, FixedSys, mono">'port'</FONT> (up to
+				<FONT FACE="Courier10 BT, Courier New, FixedSys, mono">'last_port'</FONT>).</LI>
+				<FONT FACE="Courier10 BT, Courier New, FixedSys, mono">
+				<UL><BR>
+					<LI>inb port [last_port]</LI>
+					<LI>inw port</LI>
+					<LI>inl port</LI>
+				</UL>
+				</FONT>
+				<BR>
+				<LI>Writing a Byte/Word/Long (8/16/32 bits) to 'port'.</LI>
+				<FONT FACE="Courier10 BT, Courier New, FixedSys, mono">
+				<UL><BR>
+					<LI>outb port value</LI>
+					<LI>outw port value</LI>
+					<LI>outl port value</LI>
+				</UL>
+				</FONT>
+
+				<BR>
+				<B>Examples:</B>
+				<FONT FACE="Courier10 BT, Courier New, FixedSys, mono">
+				<UL><BR>
+					<LI>inb 0x290 0x297</LI>
+					<LI>outb 0x80 0xBe</LI>
+				</UL>
+				</FONT>
+
+				<BR>
+				<LI>VGA-Style (indexed) Registers I/O from/to
+				<FONT FACE="Courier10 BT, Courier New, FixedSys, mono">'port'</FONT>, starting at the register located at
+				<FONT FACE="Courier10 BT, Courier New, FixedSys, mono">'index'</FONT> (and up to the register located at
+				<FONT FACE="Courier10 BT, Courier New, FixedSys, mono">'last_idx'</FONT> for reads).</LI>
+				<FONT FACE="Courier10 BT, Courier New, FixedSys, mono">
+				<UL><BR>
+					<LI>idxinb port index [last_idx]</LI>
+					<LI>idxoutb port value</LI>
+				</UL>
+				</FONT>
+
+				<BR>
+				<B>Examples:</B>
+				<UL><BR>
+					<LI>idxinb 0x3C4 0x0 0x3F</LI>
+					<LI>idxoutb 0x80 0x0 0xBe</LI>
+				</UL>
+				</FONT>
+
+			</UL>
+
+			<BR>
+
+			<LI><B><FONT SIZE="3">PCI Configuration Space I/O</FONT></B></LI>
+			<P>For the commads that let you poke with PCI registers, you'll need to
+			specify the right PCI device in the form:</P>
+			<UL>
+				<LI>bus
+				<LI>device
+				<LI>function
+			</UL>
+			<P>But how do you get those numbers for a given device?</P>
+			<P>Easy, just use the handy <FONT FACE="Courier10 BT, Courier New, FixedSys, mono">pcilist</FONT>
+			command and you'll get something like this:</P>
+<PRE>
+poke: pcilist
+bus 00 device 00 function 00: vendor 0x1039 device 0x0730 revision 0x02
+[...]
+bus 01 device 00 function 00: vendor 0x1039 device 0x6300 revision 0x31
+bus 00 device 09 function 00: vendor 0x134D device 0x7890 revision 0x02
+bus 00 device 11 function 00: vendor 0x1131 device 0x7130 revision 0x01 
+[...]
+poke:
+</PRE
+
+			<P>That shows that I have a SiS (0x1039) 630/730 (0x6300) on-board
+			video card at "bus 1, dev 0, fun 0", and a Philips-based TV Tuner
+			card (0x7130) at "bus 0, dev 11, fun 0".</P>
+
+			<P>Now we can use the <FONT FACE="Courier10 BT, Courier New, FixedSys, mono">pci</FONT>
+			command to obtain more in-depth information a given device:</P>
+<PRE>
+poke: pci 0 11 0
+bus 00 device 11 function 00: vendor 0x1131 device 0x7130 revision 0x01
+  class_base = 0x04 class_function = 0x80 class_api   = 0x00
+  line_size  = 0x00 latency_timer  = 0x40 header_type = 0x00 BIST = 0x00
+  interrupt  = 0x0b interrupt_pin  = 0x01 min_grant   = 0x10 max_latency = 0x28
+  rom_base    = 0x00000000 pci = 0x00000000 size = 0x00000000
+  cardbus_cis = 0x00000000 subsystem_id = 0x0138 subsystem_vendor_id = 0x5168
+  base reg 0: host addr 0xDFFFE800 pci 0xDFFFE800 size 0x00000400 flags 0x00
+  base reg 1: host addr 0x00000000 pci 0x00000000 size 0x00000000 flags 0x00
+[...]
+poke:
+</PRE>
+
+
+			<UL><BR>
+				<LI>Reading Byte/Word/Long (8/16/32 bits) from the PCI device
+				located at: <FONT FACE="Courier10 BT, Courier New, FixedSys, mono">'bus' 'dev' 'fun'</FONT>
+				starting at the register at <FONT FACE="Courier10 BT, Courier New, FixedSys, mono">'reg_offset'</FONT>
+				offset (and up to <FONT FACE="Courier10 BT, Courier New, FixedSys, mono">'last_reg_offset'</FONT>).</LI>
+				<FONT FACE="Courier10 BT, Courier New, FixedSys, mono">
+				<UL><BR>
+					<LI>cfinb bus dev fun reg_offset [last_reg_offset]</LI>
+					<LI>cfinw bus dev fun reg_offset [last_reg_offset]</LI>
+					<LI>cfinl bus dev fun reg_offset [last_reg_offset]</LI>
+				</UL>
+				</FONT>
+				<BR>
+				<LI>Writing a Byte/Word/Long (8/16/32 bits) from the PCI device
+				located at: <FONT FACE="Courier10 BT, Courier New, FixedSys, mono">'bus' 'dev' 'fun'</FONT>
+				and from the register at <FONT FACE="Courier10 BT, Courier New, FixedSys, mono">'reg_offset'</FONT>
+				offset.</LI>
+				<FONT FACE="Courier10 BT, Courier New, FixedSys, mono">
+				<UL><BR>
+					<LI>cfoutb bus dev fun reg_offset value</LI>
+					<LI>cfoutw bus dev fun reg_offset value</LI>
+					<LI>cfoutl bus dev fun reg_offset value</LI>
+				</UL>
+				</FONT>
+			</UL>
+
+			<BR>
+
+			<LI><B><FONT SIZE="3">Memory I/O</FONT></B></LI>
+			<UL><BR>
+				<LI>Virtual Space</LI>
+				<LI>Physical Space</LI>
+			</UL>
+
+			<UL><BR>
+				<LI>Reading Byte/Word/Long (8/16/32 bits) from
+				<FONT FACE="Courier10 BT, Courier New, FixedSys, mono">'address'</FONT> (up to
+				<FONT FACE="Courier10 BT, Courier New, FixedSys, mono">'last_address'</FONT>).</LI>
+				<FONT FACE="Courier10 BT, Courier New, FixedSys, mono">
+				<UL><BR>
+					<LI>db address [last_address]</LI>
+					<LI>dw address [last_address]</LI>
+					<LI>dl address [last_address]</LI>
+				</UL>
+				</FONT>
+				<BR>
+				<LI>Writing a Byte/Word/Long (8/16/32 bits) to 'address'.</LI>
+				<FONT FACE="Courier10 BT, Courier New, FixedSys, mono">
+				<UL><BR>
+					<LI>sb address value</LI>
+					<LI>sw address value</LI>
+					<LI>sl address value</LI>
+				</UL>
+				</FONT>
+			</UL>
+
+		</OL>
+
+	</TD></TR>
+	</TABLE>
+
+	<BR>
+<!-- ======================================================================= -->
+	<BR>
+
+	<TABLE BORDER="0" CELLPADDING="4" CELLSPACING="1" WIDTH="100%">
+	<TR><TD BGCOLOR="#f0f8ff">
+		<A NAME="???">
+			<B><FONT COLOR="#1968cd" SIZE="3">Tips</FONT></B>
+		</A>
+		<FONT COLOR="#1968cd" SIZE="2"> (and tricks)</FONT>
+	</TD></TR>
+
+	<TR><TD>
+		<P>You can 'script' poke! Just write a text file with one command per
+		line, like this:</P>
+		<FONT FACE="Courier10 BT, Courier New, FixedSys, mono">
+		idxinb 0x3C4 0x0 0xFF<BR>
+		idxout 0x3C4 0x30 0xA1<BR>
+		inb 0xD000 0xD0FF<BR>
+		quit<BR>
+		</FONT>
+		<P>(don't forget the last 'quit') And then you can call it like this:</P>
+		<FONT FACE="Courier10 BT, Courier New, FixedSys, mono">
+		/boot/home> cat input.txt | poke - > output.txt
+		</FONT>
+		<BR>
+		("poke -" instruct it to read from standard in)
+	</TD></TR>
+	</TABLE>
+
+
+	<BR>
+<!-- ======================================================================= -->
+	<BR>
+
+	<TABLE BORDER="0" CELLPADDING="4" CELLSPACING="1" WIDTH="100%">
+	<TR><TD BGCOLOR="#f0f8ff">
+		<A NAME="New">
+			<B><FONT COLOR="#1968cd" SIZE="3">What's new?</FONT></B>
+		</A>
+		<FONT COLOR="#1968cd" SIZE="2">(are you already a poke-aholic? You'll love this...)</FONT>
+	</TD></TR>
+
+	<TR><TD>
+		<P>Original poke was made by Be Inc. And it was good. But it was not really
+		comfortable, and had some few bugs/quirks.
+		This replacement is has some neat features over the original, namely:</P>
+		<UL>
+			<LI>Command line editing/history (bash-like).</LI>
+			<LI>Less segment-fault prone (checks the memory before touching it).</LI>
+			<LI>Lets you do memory-pages dumps to HD (physical and virtual).</LI>
+			<LI>(basic) PCI device listing.</LI>
+			<LI>Smaller things that I've forgot already.</LI>
+		</UL>
+
+<!--	<P>Disclaimer/License/Warranty: (what? need someone to blame for that borked HD?)</P> -->
+	</TD></TR>
+	</TABLE>
+
+<!-- [Content End] ========================================================= -->
+
+	</TD>
+
+</TABLE>
+
+<!-- [Footer] ============================================================== -->
+
+<CENTER>
+	<HR WIDTH="99%">
+	<FONT COLOR="gray" SIZE="-2">Site design shamelessly steals from
+		<A HREF="http://geocities.com/ram_beos/">Ramshankar's Home Page</A>.
+	</FONT>
+	<FONT COLOR="gray" SIZE="-2">I hope you don't mind Ram! :-)</FONT><BR>
+	<FONT COLOR="gray" SIZE="-2">Best viewed with, at least, one eye opened.</FONT>
+</CENTER>
+
+</FONT></BODY>
+</HTML>
