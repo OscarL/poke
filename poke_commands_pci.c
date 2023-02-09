@@ -81,11 +81,20 @@ void command_pcilist(int argc, uint32 argv[])
 {
 	pci_info pciinfo;
 	int i = 0;
+	bool verbose = argv[0] == 1;
+	char format[100];
+
+	sprintf(format, "%s", " %02d:%02d.%02d:  0x%04X | 0x%04X | 0x%02X\n");
+	if (verbose)
+		sprintf(format, "%s", "bus %02d device %02d function %02d: vendor 0x%04X device 0x%04X revision 0x%02X\n");
+	else {
+		printf("bus:dev.fn: vendor | device | rev \n");
+		printf("--------------------------------\n");
+	}
 
 	while ((poke_get_nth_pci_info(i, &pciinfo) == B_OK)) {
 		i++;
-		printf("bus %02d device %02d function %02d: vendor 0x%04X device 0x%04X revision 0x%02X\n",
-			pciinfo.bus, pciinfo.device, pciinfo.function,
+		printf(format, pciinfo.bus, pciinfo.device, pciinfo.function,
 			pciinfo.vendor_id, pciinfo.device_id, pciinfo.revision);
 	}
 }
