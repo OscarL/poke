@@ -249,7 +249,7 @@ poke_map_physical_mem(uint32 phys_address, uint32* virtual_address, uint32* off)
 	cmd.name = "poke_area"; // forget to name the area and await doom.
 	cmd.area = -1;
 	cmd.size = B_PAGE_SIZE;
-	cmd.physical_address = (void*) phys_address;
+	cmd.physical_address = (phys_addr_t) phys_address;
 	cmd.protection = B_READ_AREA | B_WRITE_AREA;
 	cmd.flags = B_ANY_KERNEL_ADDRESS;
 
