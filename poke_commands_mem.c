@@ -196,7 +196,7 @@ void read_physical_mem(int size, int argc, uint32 argv[])
 
 	area = poke_map_physical_mem(argv[0], &address, &offset);
 	if (area < B_OK) {
-		printf("Error while trying to map physical memory\n");
+		printf("Error while trying to map physical memory (error: 0x%x)\n", area);
 		return;
 	}
 
